@@ -2,518 +2,208 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ねむ</title>
+<title>Teal</title>
 <style>
-  * { box-sizing: border-box; }
-
-  :root {
-    --main:   #B3A5E8;
-    --main-d: #8B7BC7;
-    --glow:   rgba(179,165,232,.5);
-    --text:   #E6E1F5;
-    --text-d: #A79FC4;
-  }
-
-  html, body {
-    margin: 0;
-    height: 100%;
-  }
-
   body {
-    background: radial-gradient(circle at 50% 32%, #2b2545 0%, #191430 58%, #0d0a1a 100%);
-    color: var(--text);
-    font-family: "Hiragino Sans", "Yu Gothic", "Meiryo", system-ui, sans-serif;
-    overflow: hidden;
-    -webkit-user-select: none;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
+    margin: 0;
+    height: 100vh;
+    display: grid;
+    place-items: center;
+    background: #000;
   }
+  .stage { width: min(90vmin, 520px); height: min(90vmin, 520px); }
+  .stage svg { width: 100%; height: 100%; overflow: visible; }
 
-  /* ===== 星空 ===== */
-  .stars {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
+  /* ===== キャラ全体：ふわふわ浮く ===== */
+  .teal {
+    animation: tealFloat 3.8s ease-in-out infinite;
+    transform-origin: 200px 250px;
   }
-  .star {
-    position: absolute;
-    width: 2px;
-    height: 2px;
-    border-radius: 50%;
-    background: #fff;
-    opacity: .6;
-    animation: twinkle 4s ease-in-out infinite;
-  }
-  @keyframes twinkle {
-    0%, 100% { opacity: .15; transform: scale(.7); }
-    50%      { opacity: .8;  transform: scale(1);  }
-  }
-
-  /* ===== レイアウト ===== */
-  .scene {
-    position: relative;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 42px;
-    padding: 32px 24px 44px;
-  }
-
-  /* ===== キャラ本体 ===== */
-  .bot {
-    position: relative;
-    width: 200px;
-    height: 200px;
-    flex-shrink: 0;
-    animation: float 5.4s ease-in-out infinite;
-    transition: transform .5s cubic-bezier(.2, .9, .3, 1);
-  }
-  @keyframes float {
-    0%, 100% { transform: translateY(5px); }
+  @keyframes tealFloat {
+    0%, 100% { transform: translateY(0); }
     50%      { transform: translateY(-9px); }
   }
 
-  /* 後光 */
-  .halo {
-    position: absolute;
-    inset: -60px;
-    border-radius: 50%;
-    background: radial-gradient(circle, var(--glow) 0%, rgba(179,165,232,0) 68%);
-    pointer-events: none;
-    animation: halo 5.4s ease-in-out infinite;
-  }
-  @keyframes halo {
-    0%, 100% { transform: scale(.9);  opacity: .5; }
-    50%      { transform: scale(1.08); opacity: .95; }
-  }
-
-  /* 顔（球体） */
-  .face {
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    background: radial-gradient(circle at 34% 26%, #cfc4f5 0%, var(--main) 46%, var(--main-d) 100%);
-    box-shadow:
-      0 24px 55px -18px var(--glow),
-      0 8px 22px -8px var(--glow),
-      inset 0 -16px 30px -14px rgba(60,40,100,.5),
-      inset 0 12px 24px -12px rgba(255,255,255,.75);
-    transform: rotate(var(--tilt, 0deg));
-    will-change: transform;
-  }
-
-  /* 目（2本のバー） */
-  .eyes {
-    position: absolute;
-    left: 50%;
-    top: 44%;
-    display: flex;
-    gap: 18px;
-    transform: translate(-50%, -50%) translate(var(--ex, 0px), var(--ey, 0px));
-    will-change: transform;
-  }
-
+  /* ===== 目：瞬き ===== */
   .eye {
-    width: 24px;
-    height: 80px;
-    border-radius: 999px;
-    background: #fff;
+    transform-box: fill-box;
     transform-origin: 50% 50%;
-    transition: transform .1s cubic-bezier(.4, 0, .2, 1);
-    box-shadow: 0 0 18px rgba(255,255,255,.65);
+    transition: transform 0.1s ease;
   }
-  .eye.blink { transform: scaleY(.08); }
+  .eye.blink { transform: scaleY(0.08); }
 
-  .bot.speaking .eye { animation: talk .5s ease-in-out infinite alternate; }
-  .bot.speaking .eye:nth-child(2) { animation-delay: .25s; }
+  /* ===== 口：喋ってる風 ===== */
+  .mouth {
+    transform-box: fill-box;
+    transform-origin: 50% 0%;       /* 上辺を軸に下へ開く */
+  }
+  .teal.speaking .mouth {
+    animation: talk 0.32s ease-in-out infinite alternate;
+  }
   @keyframes talk {
-    from { transform: scaleY(.62) scaleX(1);    }
-    to   { transform: scaleY(1.06) scaleX(.94); }
+    from { transform: scaleY(1);   }
+    to   { transform: scaleY(2.4); }
   }
 
-  /* ===== セリフ（ふわっと出てくる） ===== */
-  .bubble {
-    min-height: 3.4em;
-    max-width: 30ch;
-    text-align: center;
-    font-size: 17px;
-    line-height: 2;
-    letter-spacing: .06em;
-    font-weight: 300;
-    color: var(--text);
-    text-shadow: 0 0 20px rgba(179,165,232,.35);
+  /* 喋ってる時の目も微かに動く */
+  .teal.speaking .eye {
+    animation: eyeTalk 0.5s ease-in-out infinite alternate;
   }
-  .bubble span {
-    display: inline-block;
-    opacity: 0;
-    animation: fadeUp .7s cubic-bezier(.2,.8,.3,1) forwards;
-  }
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(8px); filter: blur(5px); }
-    to   { opacity: 1; transform: translateY(0);   filter: blur(0);   }
-  }
-  .bubble .cursor {
-    display: inline-block;
-    width: 2px;
-    height: 1em;
-    vertical-align: -.15em;
-    margin-left: 3px;
-    background: var(--main);
-    animation: blinkCursor 1s steps(1) infinite;
-  }
-  @keyframes blinkCursor {
-    0%, 50% { opacity: 1; }
-    51%, 100% { opacity: 0; }
+  .teal.speaking .eye.right { animation-delay: 0.25s; }
+  @keyframes eyeTalk {
+    from { transform: scaleY(0.72); }
+    to   { transform: scaleY(1.05); }
   }
 
-  /* ===== マイクボタン ===== */
-  .mic {
-    position: relative;
-    width: 62px;
-    height: 62px;
-    border: none;
-    border-radius: 50%;
-    background: rgba(179,165,232,.14);
-    border: 1px solid rgba(179,165,232,.35);
-    color: var(--main);
-    cursor: pointer;
-    display: grid;
-    place-items: center;
-    transition: background .3s, transform .2s, box-shadow .3s;
+  /* ===== 手：ゆらゆら ===== */
+  .hand {
+    transform-box: fill-box;
   }
-  .mic:hover {
-    background: rgba(179,165,232,.24);
-    box-shadow: 0 0 28px -6px var(--glow);
+  .hand.left {
+    transform-origin: 85% 30%;       /* 体側の付け根 */
+    animation: swayL 2.9s ease-in-out infinite;
   }
-  .mic:active { transform: scale(.94); }
-
-  .mic svg { width: 24px; height: 24px; }
-
-  /* 録音中の波紋 */
-  .mic::before,
-  .mic::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    border: 1px solid var(--main);
-    opacity: 0;
-    pointer-events: none;
+  .hand.right {
+    transform-origin: 15% 30%;
+    animation: swayR 3.3s ease-in-out infinite;
   }
-  .mic.listening::before { animation: pulse 1.8s ease-out infinite; }
-  .mic.listening::after  { animation: pulse 1.8s ease-out .9s infinite; }
-  @keyframes pulse {
-    0%   { transform: scale(1);   opacity: .7; }
-    100% { transform: scale(2.1); opacity: 0;  }
+  @keyframes swayL {
+    0%, 100% { transform: rotate(-7deg); }
+    50%      { transform: rotate(5deg);  }
   }
-  .mic.listening {
-    background: rgba(179,165,232,.3);
-    color: #fff;
+  @keyframes swayR {
+    0%, 100% { transform: rotate(7deg);  }
+    50%      { transform: rotate(-5deg); }
   }
 
-  /* ステータスラベル */
-  .status {
-    position: absolute;
-    bottom: 18px;
-    left: 0; right: 0;
-    text-align: center;
-    font-size: 11px;
-    letter-spacing: .2em;
-    color: var(--text-d);
-    opacity: .6;
-    transition: opacity .4s;
+  /* ===== ぴょこっ（隠れて出てくる） ===== */
+  .teal.peekaboo {
+    animation: peekaboo 1.4s cubic-bezier(.4, 0, .3, 1);
+  }
+  @keyframes peekaboo {
+    0%   { transform: translateY(0);    }
+    25%  { transform: translateY(55px); }   /* 隠れる */
+    55%  { transform: translateY(55px); }   /* 間 */
+    80%  { transform: translateY(-6px); }   /* 出てくる */
+    100% { transform: translateY(0);    }
   }
 </style>
 </head>
 <body>
 
-<div class="stars" id="stars"></div>
+<div class="stage">
+<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
 
-<div class="scene">
-  <div class="bot" id="bot">
-    <div class="halo"></div>
-    <div class="face">
-      <div class="eyes">
-        <div class="eye"></div>
-        <div class="eye"></div>
-      </div>
-    </div>
-  </div>
+  <!-- ============ 1. 地球（背景） ============ -->
+  <g fill="none" stroke="#fff" stroke-width="13" stroke-linecap="round">
+    <circle cx="200" cy="200" r="158"/>
+    <!-- 上の斜め線 -->
+    <path d="M 55 155 Q 200 105 345 140"/>
+    <!-- 中ほどの横線（カーテンの上側） -->
+    <path d="M 45 240 Q 200 215 355 240"/>
+    <!-- 下の横線 -->
+    <path d="M 75 310 Q 200 288 325 310"/>
+    <!-- 左の縦カーブ -->
+    <path d="M 190 45 Q 100 200 190 355"/>
+    <!-- 中の縦カーブ -->
+    <path d="M 200 42 Q 222 200 200 358"/>
+    <!-- 右の縦カーブ -->
+    <path d="M 212 46 Q 300 200 208 355"/>
+  </g>
 
-  <div class="bubble" id="bubble"></div>
+  <!-- ============ 2. Teal（キャラ） ============ -->
+  <g class="teal" id="teal">
 
-  <button class="mic" id="mic" aria-label="話しかける">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
-      <rect x="9" y="3" width="6" height="11" rx="3"/>
-      <path d="M5 11a7 7 0 0 0 14 0"/>
-      <line x1="12" y1="18" x2="12" y2="21"/>
-    </svg>
-  </button>
+    <!-- 左手 -->
+    <g class="hand left">
+      <ellipse cx="82" cy="228" rx="30" ry="48" fill="#4FD1C5"
+               transform="rotate(-25 82 228)"/>
+      <!-- 手のテカリ -->
+      <path d="M 74 215 Q 68 232 71 250"
+            stroke="#fff" stroke-width="4.5" stroke-linecap="round"
+            fill="none" opacity="0.85"
+            transform="rotate(-25 82 228)"/>
+    </g>
 
-  <div class="status" id="status">タップして話しかけてね</div>
+    <!-- 右手 -->
+    <g class="hand right">
+      <ellipse cx="320" cy="205" rx="30" ry="48" fill="#4FD1C5"
+               transform="rotate(25 320 205)"/>
+      <!-- 手のテカリ -->
+      <path d="M 330 192 Q 336 208 333 224"
+            stroke="#fff" stroke-width="4.5" stroke-linecap="round"
+            fill="none" opacity="0.85"
+            transform="rotate(25 320 205)"/>
+    </g>
+
+    <!-- 胴体（頭） -->
+    <ellipse cx="200" cy="205" rx="96" ry="82" fill="#4FD1C5"/>
+
+    <!-- 頭のテカリ -->
+    <path d="M 240 145 Q 258 152 264 172"
+          stroke="#fff" stroke-width="5.5" stroke-linecap="round"
+          fill="none" opacity="0.9"/>
+    <path d="M 252 178 Q 258 182 261 189"
+          stroke="#fff" stroke-width="4" stroke-linecap="round"
+          fill="none" opacity="0.6"/>
+
+    <!-- 目 -->
+    <rect class="eye left"  x="170" y="182" width="14" height="34" rx="7" fill="#fff"/>
+    <rect class="eye right" x="216" y="182" width="14" height="34" rx="7" fill="#fff"/>
+
+    <!-- 口（三角） -->
+    <polygon class="mouth" points="200,228 191,240 209,240" fill="#fff"/>
+
+  </g>
+
+  <!-- ============ 3. カーテン（白い横棒） ============ -->
+  <rect x="40" y="243" width="320" height="22" fill="#fff" rx="3"/>
+
+</svg>
 </div>
 
 <script>
-/* ========================================================
-   0. 星空を生成
-   ======================================================== */
-(function makeStars() {
-  const box = document.getElementById('stars');
-  for (let i = 0; i < 60; i++) {
-    const s = document.createElement('div');
-    s.className = 'star';
-    s.style.left = Math.random() * 100 + '%';
-    s.style.top  = Math.random() * 100 + '%';
-    s.style.animationDelay = (Math.random() * 4).toFixed(2) + 's';
-    s.style.opacity = (0.2 + Math.random() * 0.6).toFixed(2);
-    box.appendChild(s);
+(function () {
+  const teal = document.getElementById('teal');
+  const eyes = document.querySelectorAll('.eye');
+
+  /* ---------- 瞬き ---------- */
+  function blink() {
+    if (teal.classList.contains('speaking')) return;
+    eyes.forEach(e => e.classList.add('blink'));
+    setTimeout(() => eyes.forEach(e => e.classList.remove('blink')), 120);
   }
-})();
+  (function blinkLoop() {
+    setTimeout(() => {
+      blink();
+      if (Math.random() < 0.25) setTimeout(blink, 240);
+      blinkLoop();
+    }, 1800 + Math.random() * 2800);
+  })();
 
-/* ========================================================
-   1. キャラの基本挙動（瞬き・視線・浮遊）
-   ======================================================== */
-const root   = document.documentElement;
-const bot    = document.getElementById('bot');
-const faceEl = document.querySelector('.face');
-const eyeEls = document.querySelectorAll('.eye');
+  /* ---------- 喋ってる風 ---------- */
+  let speakTimer = null;
+  window.tealSpeak = function (ms = 2000) {
+    teal.classList.add('speaking');
+    clearTimeout(speakTimer);
+    speakTimer = setTimeout(() => teal.classList.remove('speaking'), ms);
+  };
 
-// --- 瞬き ---
-function blink() {
-  if (bot.classList.contains('speaking')) return;
-  eyeEls.forEach(el => el.classList.add('blink'));
-  setTimeout(() => eyeEls.forEach(el => el.classList.remove('blink')), 110);
-}
-(function blinkLoop() {
-  setTimeout(() => {
-    blink();
-    if (Math.random() < 0.25) setTimeout(blink, 240);
-    blinkLoop();
-  }, 1800 + Math.random() * 3000);
-})();
+  /* ---------- ぴょこっ（隠れて出てくる） ---------- */
+  function peekaboo() {
+    teal.classList.remove('peekaboo');
+    void teal.offsetWidth;              // アニメ再開のおまじない
+    teal.classList.add('peekaboo');
+    setTimeout(() => teal.classList.remove('peekaboo'), 1400);
+  }
 
-// --- 視線追従（なめらか補間） ---
-let tx = 0, ty = 0, cx = 0, cy = 0, lastMove = -1e9;
-
-function lookAt(px, py) {
-  const r  = faceEl.getBoundingClientRect();
-  const ox = px - (r.left + r.width  / 2);
-  const oy = py - (r.top  + r.height / 2);
-  const d  = Math.hypot(ox, oy) || 1;
-  const reach = Math.min(d / 340, 1);
-  tx = (ox / d) * 13 * reach;
-  ty = (oy / d) * 9  * reach;
-}
-window.addEventListener('mousemove', e => {
-  lastMove = performance.now();
-  lookAt(e.clientX, e.clientY);
-});
-document.addEventListener('mouseleave', () => { tx = 0; ty = 0; });
-
-(function tick() {
-  cx += (tx - cx) * 0.12;
-  cy += (ty - cy) * 0.12;
-  root.style.setProperty('--ex', cx.toFixed(2) + 'px');
-  root.style.setProperty('--ey', cy.toFixed(2) + 'px');
-  root.style.setProperty('--tilt', (cx * 0.35).toFixed(2) + 'deg');
-  requestAnimationFrame(tick);
-})();
-
-/* ========================================================
-   2. セリフを1文字ずつふわっと表示
-   ======================================================== */
-const bubbleEl = document.getElementById('bubble');
-let typeTimer = null;
-
-function showText(text, speed = 0.07) {
-  clearTimeout(typeTimer);
-  bubbleEl.innerHTML = '';
-  bubbleEl.style.visibility = 'visible';
-
-  const chars = [...text];
-  chars.forEach((ch, i) => {
-    const span = document.createElement('span');
-    span.textContent = ch;
-    span.style.animationDelay = (i * speed).toFixed(2) + 's';
-    bubbleEl.appendChild(span);
+  /* ---------- クリック：隠れて出てきて喋る ---------- */
+  document.addEventListener('click', () => {
+    peekaboo();
+    setTimeout(() => window.tealSpeak(2200), 1100);  // 出てきたあとに喋る
   });
-}
 
-/* ========================================================
-   3. 喋ってる風モード
-   ======================================================== */
-let speakTimer = null;
-function setSpeaking(on, ms = 0) {
-  clearTimeout(speakTimer);
-  if (on) {
-    bot.classList.add('speaking');
-    if (ms) speakTimer = setTimeout(() => bot.classList.remove('speaking'), ms);
-  } else {
-    bot.classList.remove('speaking');
-  }
-}
-
-/* ========================================================
-   4. 読み上げ（端末の音声を「ねむ」用にチューニング）
-   ======================================================== */
-let jaVoice = null;
-function pickVoice() {
-  const voices = speechSynthesis.getVoices();
-  jaVoice = voices.find(v => v.lang.startsWith('ja')) || voices[0] || null;
-}
-if ('speechSynthesis' in window) {
-  pickVoice();
-  speechSynthesis.onvoiceschanged = pickVoice;
-}
-
-function speak(text) {
-  if (!('speechSynthesis' in window)) {
-    // 読み上げ非対応でも喋ってる風だけは出す
-    setSpeaking(true, Math.max(900, text.length * 130));
-    return;
-  }
-  speechSynthesis.cancel();
-
-  const u = new SpeechSynthesisUtterance(text);
-  u.pitch = 1.35;   // 少し高め → 癒し系
-  u.rate  = 0.92;   // 少しゆっくり → 寝る前
-  u.volume = 0.9;
-  if (jaVoice) u.voice = jaVoice;
-
-  setSpeaking(true);
-  u.onend   = () => setSpeaking(false);
-  u.onerror = () => setSpeaking(false);
-  speechSynthesis.speak(u);
-}
-
-/* ========================================================
-   5. 返事をつくる（ここを WebLLM に差し替える）
-   ======================================================== */
-// ▼ WebLLM を使うときは true に
-const USE_LLM = true;
-let llm = null;
-
-async function initLLM() {
-  if (llm) return llm;
-  const { CreateMLCEngine } = await import('https://esm.run/@mlc-ai/web-llm');
-  llm = await CreateMLCEngine('Qwen2.5-1.5B-Instruct-q4f16_1-MLC', {
-    initProgressCallback: (p) => {
-      setStatus(`よみこみちゅう… ${Math.round((p.progress || 0) * 100)}%`);
-    }
-  });
-  return llm;
-}
-
-const SYSTEM_PROMPT = `あなたは「ねむ」という名前の、夜の寝る前に寄り添う小さなAIです。
-・やさしく、静かで、少し眠たげな口調で話す
-・返事は短く、1〜2文まで
-・絵文字や顔文字は使わない
-・「おやすみ」に近い、安心できる言葉を選ぶ`;
-
-async function askAI(userText) {
-  if (USE_LLM) {
-    const engine = await initLLM();
-    const res = await engine.chat.completions.create({
-      messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
-        { role: 'user',   content: userText }
-      ],
-      temperature: 0.8,
-      max_tokens: 80
-    });
-    return res.choices[0].message.content.trim();
-  }
-
-  // --- フォールバック（LLMなしでも動く仮返事） ---
-  const canned = [
-    'ん…、きこえてるよ。',
-    'ふふ、そうなんだ。',
-    '今日も、おつかれさま。',
-    'ゆっくりで、いいんだよ。',
-    'そばに、いるね。'
-  ];
-  return canned[Math.floor(Math.random() * canned.length)];
-}
-
-/* ========================================================
-   6. 音声入力
-   ======================================================== */
-const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-const micBtn = document.getElementById('mic');
-const statusEl = document.getElementById('status');
-
-function setStatus(t) { statusEl.textContent = t; }
-
-let rec = null;
-let listening = false;
-
-if (SR) {
-  rec = new SR();
-  rec.lang = 'ja-JP';
-  rec.interimResults = false;
-  rec.continuous = false;
-
-  rec.onstart = () => {
-    listening = true;
-    micBtn.classList.add('listening');
-    setStatus('きいてるよ…');
-  };
-
-  rec.onresult = async (e) => {
-    const text = e.results[0][0].transcript.trim();
-    if (!text) return;
-
-    showText('「' + text + '」');
-    await new Promise(r => setTimeout(r, 700));
-
-    setStatus('かんがえちゅう…');
-    const reply = await askAI(text);
-
-    showText(reply);
-    speak(reply);
-    setStatus('タップして話しかけてね');
-  };
-
-  rec.onerror = (e) => {
-    setStatus(e.error === 'not-allowed' ? 'マイクをゆるしてね' : 'ききとれなかった…');
-  };
-
-  rec.onend = () => {
-    listening = false;
-    micBtn.classList.remove('listening');
-  };
-}
-
-micBtn.addEventListener('click', async () => {
-  if (!SR) {
-    // 音声入力が使えない環境 → 動作デモ
-    const demo = 'ねむ、きょうも疲れたよ';
-    showText('「' + demo + '」');
-    await new Promise(r => setTimeout(r, 700));
-    const reply = await askAI(demo);
-    showText(reply);
-    speak(reply);
-    return;
-  }
-  if (listening) { rec.stop(); return; }
-  speechSynthesis.cancel();
-  setSpeaking(false);
-  try { rec.start(); } catch (_) {}
-});
-
-/* ========================================================
-   7. 起動時のあいさつ
-   ======================================================== */
-window.addEventListener('load', () => {
-  setTimeout(() => {
-    const hello = 'こんばんは。ねむだよ。';
-    showText(hello);
-    speak(hello);
-  }, 800);
-});
+})();
 </script>
 </body>
 </html>
