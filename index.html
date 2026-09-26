@@ -3,115 +3,301 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Teal</title>
+<title>パーソナルAI</title>
 <style>
   * { box-sizing: border-box; }
+
   html, body {
     margin: 0;
     height: 100%;
-    background: #0a0a0a;
-    display: grid;
-    place-items: center;
     overflow: hidden;
+  }
+
+  body {
+    font-family: "Hiragino Sans", "Yu Gothic", "Meiryo", system-ui, sans-serif;
+    color: #d8f5f1;
+    background:
+      radial-gradient(circle at 50% 38%, #123a38 0%, #0a2322 45%, #061413 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 22px;
+    gap: 34px;
+    -webkit-user-select: none;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
   }
 
-  .stage {
-    width: min(85vmin, 480px);
-    cursor: pointer;
-  }
-
-  /* ===== 画像全体をふわふわ ===== */
-  .teal {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 1;
-    animation: bob 4s ease-in-out infinite;
-  }
-  @keyframes bob {
-    0%, 100% { transform: translateY(0); }
-    50%      { transform: translateY(-3.5%); }
-  }
-
-  .teal img {
-    width: 100%;
-    height: 100%;
-    display: block;
+  /* ===== 星（うっすら） ===== */
+  .stars {
+    position: fixed;
+    inset: 0;
     pointer-events: none;
-    user-select: none;
+    z-index: 0;
   }
-
-  /* ===== まぶた（同じ色で目を覆う） ===== */
-  .eyelid {
+  .star {
     position: absolute;
-    background: #4FD1C5;
-    /* 下側だけ丸くして、目ん玉の形に近づける */
-    border-radius: 45% 45% 50% 50% / 20% 20% 100% 100%;
-
-    /* 上辺を軸に、縦に潰す／伸ばす */
-    transform-origin: 50% 0%;
-    transform: scaleY(0);                /* 普段は隠れてる */
-    transition: transform 0.09s cubic-bezier(.4, 0, .2, 1);
-
-    pointer-events: none;
-    /* うっすらぼかして画像との境目を馴染ませる */
-    filter: blur(0.4px);
+    width: 2px; height: 2px;
+    border-radius: 50%;
+    background: #bff5ee;
+    animation: twinkle 5s ease-in-out infinite;
   }
-  .eyelid.blink { transform: scaleY(1); }  /* 瞬きのときだけ下りてくる */
+  @keyframes twinkle {
+    0%, 100% { opacity: .08; transform: scale(.7); }
+    50%      { opacity: .45; transform: scale(1); }
+  }
 
-  /* ===== 目の位置（ここだけ微調整すればOK） ===== */
-  
-/* 左目 */
-.eyelid.left {
-  left:   43.5%;   /* 横位置：そのまま */
-  top:    38.5%;   /* ← 40.5% から上へ（4%アップ） */
-  width:   5.5%;   /* そのまま */
-  height:  9%;     /* ← 11% から短く（はみ出し解消） */
-}
-/* 右目 */
-.eyelid.right {
-  left:   53.5%;
-  top:    38.5%;   /* ← 同じく上へ */
-  width:   5.5%;
-  height:  9%;
-}
+  /* ===== キャラクター ===== */
+  .bot {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    z-index: 1;
+    animation: float 5.2s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(4px); }
+    50%      { transform: translateY(-8px); }
+  }
+
+  .halo {
+    position: absolute;
+    inset: -55px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(79,209,197,.32) 0%, rgba(79,209,197,0) 68%);
+    animation: halo 5.2s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes halo {
+    0%, 100% { transform: scale(.92); opacity: .55; }
+    50%      { transform: scale(1.08); opacity: .9; }
+  }
+
+  .face {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 34% 26%, #7ee6db 0%, #4FD1C5 46%, #2f9e94 100%);
+    box-shadow:
+      0 22px 48px -18px rgba(79,209,197,.7),
+      inset 0 -14px 26px -12px rgba(0,70,64,.5),
+      inset 0 10px 20px -10px rgba(255,255,255,.65);
+  }
+
+  /* 目（白いバー2本） */
+  .eyes {
+    position: absolute;
+    left: 50%;
+    top: 44%;
+    display: flex;
+    gap: 16px;
+    transform: translate(-50%, -50%);
+  }
+  .eye {
+    width: 18px;
+    height: 60px;
+    border-radius: 999px;
+    background: #fff;
+    transform-origin: 50% 50%;
+    transition: transform .1s cubic-bezier(.4,0,.2,1);
+    box-shadow: 0 0 14px rgba(255,255,255,.55);
+  }
+  .eye.blink { transform: scaleY(.08); }
+
+  /* 口（小さな下向き三角） */
+  .mouth {
+    position: absolute;
+    left: 50%;
+    top: 63%;
+    width: 0; height: 0;
+    transform: translateX(-50%);
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-top: 9px solid rgba(255,255,255,.9);
+    border-radius: 2px;
+  }
+
+  /* ===== セリフ ===== */
+  .bubble {
+    position: relative;
+    z-index: 1;
+    min-height: 3.2em;
+    max-width: 32ch;
+    text-align: center;
+    font-size: 17px;
+    line-height: 2;
+    letter-spacing: .06em;
+    font-weight: 300;
+    color: #d8f5f1;
+    text-shadow: 0 0 22px rgba(79,209,197,.35);
+  }
+  .bubble span {
+    display: inline-block;
+    opacity: 0;
+    animation: fadeUp .7s cubic-bezier(.2,.8,.3,1) forwards;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); filter: blur(5px); }
+    to   { opacity: 1; transform: translateY(0);   filter: blur(0);   }
+  }
+
+  /* ===== 入力欄 ===== */
+  .composer {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    gap: 10px;
+    width: min(100%, 460px);
+  }
+  .composer input {
+    flex: 1;
+    padding: 15px 20px;
+    font-size: 15px;
+    font-family: inherit;
+    color: #e6faf7;
+    background: rgba(79,209,197,.08);
+    border: 1px solid rgba(79,209,197,.3);
+    border-radius: 999px;
+    outline: none;
+    transition: background .3s, border-color .3s, box-shadow .3s;
+  }
+  .composer input::placeholder {
+    color: rgba(216,245,241,.35);
+  }
+  .composer input:focus {
+    background: rgba(79,209,197,.14);
+    border-color: rgba(79,209,197,.7);
+    box-shadow: 0 0 24px -6px rgba(79,209,197,.6);
+  }
+
+  .composer button {
+    padding: 0 24px;
+    font-size: 15px;
+    font-family: inherit;
+    color: #062a28;
+    background: #4FD1C5;
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+    font-weight: 500;
+    letter-spacing: .08em;
+    transition: transform .15s, box-shadow .3s, opacity .3s;
+    box-shadow: 0 0 24px -6px rgba(79,209,197,.7);
+  }
+  .composer button:hover {
+    box-shadow: 0 0 32px -4px rgba(79,209,197,.9);
+  }
+  .composer button:active {
+    transform: scale(.95);
+  }
+  .composer button:disabled {
+    opacity: .4;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
 </style>
 </head>
 <body>
 
-<div class="stage" id="stage">
-  <div class="teal" id="teal">
-    <img src="CronyGOicon.jpg" alt="Teal">
-    <div class="eyelid left"></div>
-    <div class="eyelid right"></div>
+<div class="stars" id="stars"></div>
+
+<div class="bot" id="bot">
+  <div class="halo"></div>
+  <div class="face">
+    <div class="eyes">
+      <div class="eye"></div>
+      <div class="eye"></div>
+    </div>
+    <div class="mouth"></div>
   </div>
 </div>
 
+<div class="bubble" id="bubble"></div>
+
+<form class="composer" id="composer">
+  <input
+    id="input"
+    type="text"
+    placeholder="今夜はどんな一日だった？"
+    autocomplete="off"
+  >
+  <button id="send" type="submit">送信</button>
+</form>
+
 <script>
+/* ---------- 星空 ---------- */
 (function () {
-  const eyelids = document.querySelectorAll('.eyelid');
-
-  function blink() {
-    eyelids.forEach(e => e.classList.add('blink'));
-    setTimeout(() => eyelids.forEach(e => e.classList.remove('blink')), 120);
+  const box = document.getElementById('stars');
+  for (let i = 0; i < 50; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.left = Math.random() * 100 + '%';
+    s.style.top  = Math.random() * 100 + '%';
+    s.style.animationDelay = (Math.random() * 5).toFixed(2) + 's';
+    s.style.opacity = (0.1 + Math.random() * 0.4).toFixed(2);
+    box.appendChild(s);
   }
-
-  /* 1.8〜4.8秒のランダム間隔で瞬き、たまに2連続 */
-  (function loop() {
-    setTimeout(() => {
-      blink();
-      if (Math.random() < 0.25) setTimeout(blink, 240);
-      loop();
-    }, 1800 + Math.random() * 3000);
-  })();
-
-  /* タップでぱちぱち */
-  document.getElementById('stage').addEventListener('click', () => {
-    blink();
-    setTimeout(blink, 180);
-  });
 })();
+
+/* ---------- 瞬き ---------- */
+const eyes = document.querySelectorAll('.eye');
+function blink() {
+  eyes.forEach(e => e.classList.add('blink'));
+  setTimeout(() => eyes.forEach(e => e.classList.remove('blink')), 120);
+}
+(function loop() {
+  setTimeout(() => {
+    blink();
+    if (Math.random() < 0.25) setTimeout(blink, 240);
+    loop();
+  }, 1800 + Math.random() * 3000);
+})();
+
+/* ---------- フェードイン表示 ---------- */
+const bubble = document.getElementById('bubble');
+let typeTimer = null;
+
+function showText(text, speed = 0.07) {
+  clearTimeout(typeTimer);
+  bubble.innerHTML = '';
+  [...text].forEach((ch, i) => {
+    const span = document.createElement('span');
+    span.textContent = ch;
+    span.style.animationDelay = (i * speed).toFixed(2) + 's';
+    bubble.appendChild(span);
+  });
+}
+
+/* ---------- 入力 → 仮返答（AIはまだなし） ---------- */
+const form  = document.getElementById('composer');
+const input = document.getElementById('input');
+const send  = document.getElementById('send');
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const text = input.value.trim();
+  if (!text) return;
+
+  input.value = '';
+  send.disabled = true;
+
+  // ユーザーの発話を表示（仮）
+  showText('「' + text + '」');
+
+  // ちょっと間をおいて、仮の返答（後でAIに差し替える場所）
+  await new Promise(r => setTimeout(r, 1200));
+  showText('うん、聞いてるよ。');
+
+  send.disabled = false;
+  input.focus();
+});
+
+/* ---------- 起動時のあいさつ ---------- */
+window.addEventListener('load', () => {
+  setTimeout(() => showText('今日は、どうだった？'), 600);
+});
 </script>
 </body>
 </html>
