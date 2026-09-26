@@ -2,174 +2,174 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Teal</title>
 <style>
-  body {
-    margin: 0;
-    height: 100vh;
-    display: grid;
-    place-items: center;
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; height: 100%;
     background: #000;
+    display: grid; place-items: center;
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
   }
-  .stage { width: min(90vmin, 520px); height: min(90vmin, 520px); }
-  .stage svg { width: 100%; height: 100%; overflow: visible; }
 
-  /* ===== キャラ全体：ふわふわ浮く ===== */
-  .teal {
-    animation: tealFloat 3.8s ease-in-out infinite;
-    transform-origin: 200px 250px;
+  .stage {
+    width: min(90vmin, 540px);
+    aspect-ratio: 1;
+    cursor: pointer;
   }
-  @keyframes tealFloat {
+  .stage svg { width: 100%; height: 100%; display: block; overflow: visible; }
+
+  /* ===== ふわふわ浮遊 ===== */
+  .teal-part {
+    transform-box: fill-box;
+    transform-origin: 50% 50%;
+    animation: bob 4s ease-in-out infinite;
+  }
+  .teal-part.hands { animation-delay: -0.7s; }
+
+  @keyframes bob {
     0%, 100% { transform: translateY(0); }
     50%      { transform: translateY(-9px); }
   }
 
-  /* ===== 目：瞬き ===== */
+  /* ===== 瞬き ===== */
   .eye {
     transform-box: fill-box;
     transform-origin: 50% 50%;
-    transition: transform 0.1s ease;
+    transition: transform 0.1s cubic-bezier(.4, 0, .2, 1);
   }
-  .eye.blink { transform: scaleY(0.08); }
+  .eye.blink { transform: scaleY(0.1); }
 
-  /* ===== 口：喋ってる風 ===== */
+  /* ===== 喋ってる風 ===== */
   .mouth {
     transform-box: fill-box;
-    transform-origin: 50% 0%;       /* 上辺を軸に下へ開く */
+    transform-origin: 50% 0%;
   }
-  .teal.speaking .mouth {
-    animation: talk 0.32s ease-in-out infinite alternate;
+  .stage.speaking .mouth {
+    animation: talk 0.34s ease-in-out infinite alternate;
   }
   @keyframes talk {
-    from { transform: scaleY(1);   }
-    to   { transform: scaleY(2.4); }
+    from { transform: scaleY(0.9); }
+    to   { transform: scaleY(2.3); }
   }
 
-  /* 喋ってる時の目も微かに動く */
-  .teal.speaking .eye {
-    animation: eyeTalk 0.5s ease-in-out infinite alternate;
-  }
-  .teal.speaking .eye.right { animation-delay: 0.25s; }
+  .stage.speaking .eye { animation: eyeTalk 0.5s ease-in-out infinite alternate; }
+  .stage.speaking .eye.right { animation-delay: 0.25s; }
   @keyframes eyeTalk {
-    from { transform: scaleY(0.72); }
+    from { transform: scaleY(0.75); }
     to   { transform: scaleY(1.05); }
   }
 
-  /* ===== 手：ゆらゆら ===== */
-  .hand {
-    transform-box: fill-box;
+  /* ===== びっくり（ぽよん） ===== */
+  .stage.pop .teal-part {
+    animation: pop 0.9s cubic-bezier(.3, .7, .4, 1);
   }
-  .hand.left {
-    transform-origin: 85% 30%;       /* 体側の付け根 */
-    animation: swayL 2.9s ease-in-out infinite;
-  }
-  .hand.right {
-    transform-origin: 15% 30%;
-    animation: swayR 3.3s ease-in-out infinite;
-  }
-  @keyframes swayL {
-    0%, 100% { transform: rotate(-7deg); }
-    50%      { transform: rotate(5deg);  }
-  }
-  @keyframes swayR {
-    0%, 100% { transform: rotate(7deg);  }
-    50%      { transform: rotate(-5deg); }
+  @keyframes pop {
+    0%   { transform: translateY(0); }
+    25%  { transform: translateY(12px); }
+    55%  { transform: translateY(-16px); }
+    80%  { transform: translateY(5px); }
+    100% { transform: translateY(0); }
   }
 
-  /* ===== ぴょこっ（隠れて出てくる） ===== */
-  .teal.peekaboo {
-    animation: peekaboo 1.4s cubic-bezier(.4, 0, .3, 1);
+  /* ===== 手のゆらゆら ===== */
+  .hand.left  { transform-box: fill-box; transform-origin: 100% 20%; animation: swayL 3.0s ease-in-out infinite; }
+  .hand.right { transform-box: fill-box; transform-origin: 0% 20%;   animation: swayR 3.4s ease-in-out infinite; }
+  @keyframes swayL {
+    0%, 100% { transform: rotate(-6deg); }
+    50%      { transform: rotate(6deg); }
   }
-  @keyframes peekaboo {
-    0%   { transform: translateY(0);    }
-    25%  { transform: translateY(55px); }   /* 隠れる */
-    55%  { transform: translateY(55px); }   /* 間 */
-    80%  { transform: translateY(-6px); }   /* 出てくる */
-    100% { transform: translateY(0);    }
+  @keyframes swayR {
+    0%, 100% { transform: rotate(6deg); }
+    50%      { transform: rotate(-6deg); }
   }
 </style>
 </head>
 <body>
 
-<div class="stage">
-<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+<div class="stage" id="stage">
+<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
 
-  <!-- ============ 1. 地球（背景） ============ -->
-  <g fill="none" stroke="#fff" stroke-width="13" stroke-linecap="round">
-    <circle cx="200" cy="200" r="158"/>
-    <!-- 上の斜め線 -->
-    <path d="M 55 155 Q 200 105 345 140"/>
-    <!-- 中ほどの横線（カーテンの上側） -->
-    <path d="M 45 240 Q 200 215 355 240"/>
+  <!-- ============ 地球（背景） ============ -->
+  <g fill="none" stroke="#fff" stroke-linecap="round">
+    <circle cx="256" cy="256" r="200" stroke-width="16"/>
+
+    <!-- 上のスウォッシュ -->
+    <path d="M 95 178 Q 256 98 425 158" stroke-width="14"/>
+    <!-- カーテン下の横線 -->
+    <path d="M 108 322 Q 256 302 405 322" stroke-width="14"/>
     <!-- 下の横線 -->
-    <path d="M 75 310 Q 200 288 325 310"/>
-    <!-- 左の縦カーブ -->
-    <path d="M 190 45 Q 100 200 190 355"/>
-    <!-- 中の縦カーブ -->
-    <path d="M 200 42 Q 222 200 200 358"/>
-    <!-- 右の縦カーブ -->
-    <path d="M 212 46 Q 300 200 208 355"/>
+    <path d="M 148 388 Q 256 374 364 388" stroke-width="14"/>
+
+    <!-- 縦の曲線 3本 -->
+    <path d="M 222 58 Q 88 256 222 454" stroke-width="14"/>
+    <path d="M 256 56 Q 256 256 256 456" stroke-width="14"/>
+    <path d="M 290 58 Q 424 256 290 454" stroke-width="14"/>
   </g>
 
-  <!-- ============ 2. Teal（キャラ） ============ -->
-  <g class="teal" id="teal">
+  <!-- ============ Teal の頭（カーテンに隠れる側） ============ -->
+  <g class="teal-part head">
+    <!-- 胴体 -->
+    <ellipse cx="254" cy="222" rx="68" ry="72" fill="#4FD1C5"/>
 
+    <!-- テカリ（大） -->
+    <path d="M 296 178 Q 313 190 319 214"
+          stroke="#fff" stroke-width="6" fill="none"
+          opacity="0.9" stroke-linecap="round"/>
+    <!-- テカリ（小） -->
+    <path d="M 308 224 Q 313 230 315 238"
+          stroke="#fff" stroke-width="4" fill="none"
+          opacity="0.55" stroke-linecap="round"/>
+
+    <!-- 目 -->
+    <rect class="eye left"  x="225" y="200" width="14" height="42" rx="7" fill="#fff"/>
+    <rect class="eye right" x="269" y="200" width="14" height="42" rx="7" fill="#fff"/>
+
+    <!-- 口（下向き三角） -->
+    <polygon class="mouth" points="245,242 263,242 254,257" fill="#fff"/>
+  </g>
+
+  <!-- ============ カーテン（白い横棒） ============ -->
+  <path d="M 78 268 L 434 268"
+        stroke="#fff" stroke-width="24" stroke-linecap="round" fill="none"/>
+
+  <!-- ============ Teal の手（カーテンの手前） ============ -->
+  <g class="teal-part hands">
     <!-- 左手 -->
     <g class="hand left">
-      <ellipse cx="82" cy="228" rx="30" ry="48" fill="#4FD1C5"
-               transform="rotate(-25 82 228)"/>
-      <!-- 手のテカリ -->
-      <path d="M 74 215 Q 68 232 71 250"
-            stroke="#fff" stroke-width="4.5" stroke-linecap="round"
-            fill="none" opacity="0.85"
-            transform="rotate(-25 82 228)"/>
+      <ellipse cx="148" cy="278" rx="32" ry="48" fill="#4FD1C5"
+               transform="rotate(-35 148 278)"/>
+      <path d="M 142 258 Q 133 278 136 298"
+            stroke="#fff" stroke-width="5" fill="none"
+            opacity="0.9" stroke-linecap="round"
+            transform="rotate(-35 148 278)"/>
     </g>
 
     <!-- 右手 -->
     <g class="hand right">
-      <ellipse cx="320" cy="205" rx="30" ry="48" fill="#4FD1C5"
-               transform="rotate(25 320 205)"/>
-      <!-- 手のテカリ -->
-      <path d="M 330 192 Q 336 208 333 224"
-            stroke="#fff" stroke-width="4.5" stroke-linecap="round"
-            fill="none" opacity="0.85"
-            transform="rotate(25 320 205)"/>
+      <ellipse cx="398" cy="222" rx="32" ry="48" fill="#4FD1C5"
+               transform="rotate(30 398 222)"/>
+      <path d="M 404 204 Q 413 222 410 242"
+            stroke="#fff" stroke-width="5" fill="none"
+            opacity="0.9" stroke-linecap="round"
+            transform="rotate(30 398 222)"/>
     </g>
-
-    <!-- 胴体（頭） -->
-    <ellipse cx="200" cy="205" rx="96" ry="82" fill="#4FD1C5"/>
-
-    <!-- 頭のテカリ -->
-    <path d="M 240 145 Q 258 152 264 172"
-          stroke="#fff" stroke-width="5.5" stroke-linecap="round"
-          fill="none" opacity="0.9"/>
-    <path d="M 252 178 Q 258 182 261 189"
-          stroke="#fff" stroke-width="4" stroke-linecap="round"
-          fill="none" opacity="0.6"/>
-
-    <!-- 目 -->
-    <rect class="eye left"  x="170" y="182" width="14" height="34" rx="7" fill="#fff"/>
-    <rect class="eye right" x="216" y="182" width="14" height="34" rx="7" fill="#fff"/>
-
-    <!-- 口（三角） -->
-    <polygon class="mouth" points="200,228 191,240 209,240" fill="#fff"/>
-
   </g>
-
-  <!-- ============ 3. カーテン（白い横棒） ============ -->
-  <rect x="40" y="243" width="320" height="22" fill="#fff" rx="3"/>
 
 </svg>
 </div>
 
 <script>
 (function () {
-  const teal = document.getElementById('teal');
+  const stage = document.getElementById('stage');
   const eyes = document.querySelectorAll('.eye');
 
-  /* ---------- 瞬き ---------- */
+  /* --- 瞬き --- */
   function blink() {
-    if (teal.classList.contains('speaking')) return;
+    if (stage.classList.contains('speaking')) return;
     eyes.forEach(e => e.classList.add('blink'));
     setTimeout(() => eyes.forEach(e => e.classList.remove('blink')), 120);
   }
@@ -178,31 +178,30 @@
       blink();
       if (Math.random() < 0.25) setTimeout(blink, 240);
       blinkLoop();
-    }, 1800 + Math.random() * 2800);
+    }, 1800 + Math.random() * 3000);
   })();
 
-  /* ---------- 喋ってる風 ---------- */
+  /* --- 喋ってる風 --- */
   let speakTimer = null;
   window.tealSpeak = function (ms = 2000) {
-    teal.classList.add('speaking');
+    stage.classList.add('speaking');
     clearTimeout(speakTimer);
-    speakTimer = setTimeout(() => teal.classList.remove('speaking'), ms);
+    speakTimer = setTimeout(() => stage.classList.remove('speaking'), ms);
   };
 
-  /* ---------- ぴょこっ（隠れて出てくる） ---------- */
-  function peekaboo() {
-    teal.classList.remove('peekaboo');
-    void teal.offsetWidth;              // アニメ再開のおまじない
-    teal.classList.add('peekaboo');
-    setTimeout(() => teal.classList.remove('peekaboo'), 1400);
+  /* --- びっくり（ぽよん） --- */
+  function pop() {
+    stage.classList.remove('pop');
+    void stage.offsetWidth;
+    stage.classList.add('pop');
+    setTimeout(() => stage.classList.remove('pop'), 900);
   }
 
-  /* ---------- クリック：隠れて出てきて喋る ---------- */
-  document.addEventListener('click', () => {
-    peekaboo();
-    setTimeout(() => window.tealSpeak(2200), 1100);  // 出てきたあとに喋る
+  /* --- クリック：ぽよん → ちょっと間 → 喋る --- */
+  stage.addEventListener('click', () => {
+    pop();
+    setTimeout(() => window.tealSpeak(2200), 900);
   });
-
 })();
 </script>
 </body>
