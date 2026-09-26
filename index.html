@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>パーソナルAI</title>
+<title>おやすみモード</title>
 <style>
   * { box-sizing: border-box; }
 
@@ -29,7 +29,7 @@
     -webkit-tap-highlight-color: transparent;
   }
 
-  /* ===== 星（うっすら） ===== */
+  /* ===== 星 ===== */
   .stars {
     position: fixed;
     inset: 0;
@@ -86,18 +86,18 @@
       inset 0 10px 20px -10px rgba(255,255,255,.65);
   }
 
-  /* 目（白いバー2本） */
+  /* 目だけ（口なし） */
   .eyes {
     position: absolute;
     left: 50%;
-    top: 44%;
+    top: 47%;
     display: flex;
-    gap: 16px;
+    gap: 20px;
     transform: translate(-50%, -50%);
   }
   .eye {
     width: 18px;
-    height: 60px;
+    height: 62px;
     border-radius: 999px;
     background: #fff;
     transform-origin: 50% 50%;
@@ -105,19 +105,6 @@
     box-shadow: 0 0 14px rgba(255,255,255,.55);
   }
   .eye.blink { transform: scaleY(.08); }
-
-  /* 口（小さな下向き三角） */
-  .mouth {
-    position: absolute;
-    left: 50%;
-    top: 63%;
-    width: 0; height: 0;
-    transform: translateX(-50%);
-    border-left: 7px solid transparent;
-    border-right: 7px solid transparent;
-    border-top: 9px solid rgba(255,255,255,.9);
-    border-radius: 2px;
-  }
 
   /* ===== セリフ ===== */
   .bubble {
@@ -143,19 +130,18 @@
     to   { opacity: 1; transform: translateY(0);   filter: blur(0);   }
   }
 
-  /* ===== 入力欄 ===== */
+  /* ===== 入力欄（1本だけ） ===== */
   .composer {
     position: relative;
     z-index: 1;
-    display: flex;
-    gap: 10px;
     width: min(100%, 460px);
   }
   .composer input {
-    flex: 1;
-    padding: 15px 20px;
+    width: 100%;
+    padding: 16px 22px;
     font-size: 15px;
     font-family: inherit;
+    text-align: center;
     color: #e6faf7;
     background: rgba(79,209,197,.08);
     border: 1px solid rgba(79,209,197,.3);
@@ -165,37 +151,12 @@
   }
   .composer input::placeholder {
     color: rgba(216,245,241,.35);
+    letter-spacing: .1em;
   }
   .composer input:focus {
     background: rgba(79,209,197,.14);
     border-color: rgba(79,209,197,.7);
-    box-shadow: 0 0 24px -6px rgba(79,209,197,.6);
-  }
-
-  .composer button {
-    padding: 0 24px;
-    font-size: 15px;
-    font-family: inherit;
-    color: #062a28;
-    background: #4FD1C5;
-    border: none;
-    border-radius: 999px;
-    cursor: pointer;
-    font-weight: 500;
-    letter-spacing: .08em;
-    transition: transform .15s, box-shadow .3s, opacity .3s;
-    box-shadow: 0 0 24px -6px rgba(79,209,197,.7);
-  }
-  .composer button:hover {
-    box-shadow: 0 0 32px -4px rgba(79,209,197,.9);
-  }
-  .composer button:active {
-    transform: scale(.95);
-  }
-  .composer button:disabled {
-    opacity: .4;
-    cursor: not-allowed;
-    box-shadow: none;
+    box-shadow: 0 0 26px -6px rgba(79,209,197,.6);
   }
 </style>
 </head>
@@ -210,21 +171,19 @@
       <div class="eye"></div>
       <div class="eye"></div>
     </div>
-    <div class="mouth"></div>
   </div>
 </div>
 
 <div class="bubble" id="bubble"></div>
 
-<form class="composer" id="composer">
+<div class="composer">
   <input
     id="input"
     type="text"
     placeholder="今夜はどんな一日だった？"
     autocomplete="off"
   >
-  <button id="send" type="submit">送信</button>
-</form>
+</div>
 
 <script>
 /* ---------- 星空 ---------- */
@@ -270,27 +229,28 @@ function showText(text, speed = 0.07) {
   });
 }
 
-/* ---------- 入力 → 仮返答（AIはまだなし） ---------- */
-const form  = document.getElementById('composer');
+/* ---------- Enterで送信 ---------- */
 const input = document.getElementById('input');
-const send  = document.getElementById('send');
+let busy = false;
 
-form.addEventListener('submit', async (e) => {
+input.addEventListener('keydown', async (e) => {
+  if (e.key !== 'Enter') return;
   e.preventDefault();
+
   const text = input.value.trim();
-  if (!text) return;
+  if (!text || busy) return;
 
   input.value = '';
-  send.disabled = true;
+  busy = true;
 
   // ユーザーの発話を表示（仮）
   showText('「' + text + '」');
 
-  // ちょっと間をおいて、仮の返答（後でAIに差し替える場所）
+  // 仮の返答（後でAIに差し替える場所）
   await new Promise(r => setTimeout(r, 1200));
   showText('うん、聞いてるよ。');
 
-  send.disabled = false;
+  busy = false;
   input.focus();
 });
 
