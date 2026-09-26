@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ぱちぱちキャラ</title>
+<style>
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  body {
+    display: grid;
+    place-items: center;
+    background: radial-gradient(circle at 50% 30%, #3b3452 0%, #16131d 65%);
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .stage { position: relative; }
+
+  /* ===== 影 ===== */
+  .shadow {
+    position: absolute;
+    left: 50%;
+    bottom: -12px;
+    width: 160px;
+    height: 22px;
+    margin-left: -80px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse at center, rgba(0,0,0,.5), rgba(0,0,0,0) 70%);
+    animation: shadowPulse 3.6s ease-in-out infinite;
+  }
+  @keyframes shadowPulse {
+    0%, 100% { transform: scale(1);  opacity: .85; }
+    50%      { transform: scale(.9); opacity: .55; }
+  }
+
+  /* ===== キャラクター ===== */
+  .character {
+    position: relative;
+    width: 220px;
+    height: 330px;
+    transform-origin: 50% 100%;
+    animation: breathe 3.6s ease-in-out infinite;
+  }
+  @keyframes breathe {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-7px); }
+  }
+
+  /* --- 体 --- */
+  .body {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 150px;
+    height: 140px;
+    margin-left: -75px;
+    border-radius: 70px 70px 45px 45px / 85px 85px 55px 55px;
+    background: linear-gradient(180deg, #7b86ff 0%, #5560d8 60%, #444cb5 100%);
+    box-shadow:
+      inset -10px -10px 24px rgba(0,0,0,.18),
+      inset  10px  10px 24px rgba(255,255,255,.18);
+    z-index: 1;
+  }
+
+  /* --- 頭 --- */
+  .head {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 200px;
+    height: 190px;
+    margin-left: -100px;
+    border-radius: 50% 50% 46% 46% / 52% 52% 48% 48%;
+    background: radial-gradient(circle at 50% 32%, #ffeadf 0%, #ffdcc6 60%, #f6c8ad 100%);
+    box-shadow: inset -8px -12px 24px rgba(200,140,120,.22);
+    transform-origin: 50% 92%;   /* 首の付け根あたりを軸に */
+    z-index: 2;
+  }
+
+  /* --- 髪 --- */
+  .hair {
+    position: absolute;
+    left: -6px;
+    top: -14px;
+    width: 212px;
+    height: 100px;
+    border-radius: 50% 50% 42% 42% / 66% 66% 34% 34%;
+    background: linear-gradient(165deg, #83709a 0%, #54446a 50%, #382c49 100%);
+    box-shadow: inset -6px -8px 18px rgba(0,0,0,.25);
+    z-index: 3;
+  }
+  .hair::before {           /* ツヤ */
+    content: "";
+    position: absolute;
+    top: 20px;
+    left: 34px;
+    width: 66px;
+    height: 16px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.16);
+    transform: rotate(-20deg);
+    filter: blur(2px);
+  }
+
+  /* --- アホ毛 --- */
+  .ahoge {
+    position: absolute;
+    left: calc(50% - 4px);
+    top: -36px;
+    width: 8px;
+    height: 46px;
+    border-radius: 50% 50% 25% 25%;
+    background: linear-gradient(180deg, #83709a, #4a3a5e);
+    transform-origin: 50% 100%;
+    animation: sway 3.2s ease-in-out infinite;
+  }
+  @keyframes sway {
+    0%, 100% { transform: rotate(-17deg); }
+    50%      { transform: rotate(15deg); }
+  }
+
+  /* --- 目 --- */
+  .eye {
+    position: absolute;
+    top: 86px;
+    width: 44px;
+    height: 48px;
+    background: #fff;
+    border-radius: 50%;
+    overflow: hidden;
+    transform-origin: 50% 50%;
+    transition: transform .09s cubic-bezier(.3, 0, .2, 1);
+    box-shadow: inset 0 5px 8px rgba(140,100,120,.22);
+  }
+  .eye.left  { left: 36px; }
+  .eye.right { right: 36px; }
+
+  /* ★ これがまばたき。縦にぐっと潰すだけ */
+  .eye.blink { transform: scaleY(.06); }
+
+  .eye::after {             /* まぶたの影 */
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    box-shadow: inset 0 6px 0 -3px rgba(60,45,70,.5);
+    pointer-events: none;
+  }
+
+  /* --- 瞳 --- */
+  .pupil {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 24px;
+    height: 30px;
+    margin: -15px 0 0 -12px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 38% 30%, #7a5f8c 0%, #3a2c47 55%, #241a2e 100%);
+    transform: translate(var(--px, 0px), var(--py, 0px));
+    will-change: transform;
+  }
+  .pupil::before {
+    content: "";
+    position: absolute;
+    top: 5px; left: 5px;
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: #fff;
+    opacity: .9;
+  }
+  .pupil::after {
+    content: "";
+    position: absolute;
+    right: 4px; bottom: 6px;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: #fff;
+    opacity: .5;
+  }
+
+  /* --- ほっぺ --- */
+  .blush {
+    position: absolute;
+    top: 134px;
+    width: 38px;
+    height: 20px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse at center, rgba(255,130,145,.6) 0%, rgba(255,130,145,0) 72%);
+  }
+  .blush.left  { left: 12px; }
+  .blush.right { right: 12px; }
+
+  /* --- 口 --- */
+  .mouth {
+    position: absolute;
+    left: 50%;
+    top: 146px;
+    width: 30px;
+    height: 14px;
+    margin-left: -15px;
+    border-bottom: 3px solid #c47a70;
+    border-radius: 0 0 50% 50% / 0 0 100% 100%;
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="shadow"></div>
+
+  <div class="character">
+    <div class="body"></div>
+
+    <div class="head">
+      <div class="blush left"></div>
+      <div class="blush right"></div>
+
+      <div class="eye left"><div class="pupil"></div></div>
+      <div class="eye right"><div class="pupil"></div></div>
+
+      <div class="mouth"></div>
+
+      <div class="hair">
+        <div class="ahoge"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const root  = document.documentElement;
+  const head  = document.querySelector('.head');
+  const eyes  = document.querySelectorAll('.eye');
+  const chara = document.querySelector('.character');
+
+  /* ---------- 1. まばたき ---------- */
+  function blink() {
+    eyes.forEach(el => el.classList.add('blink'));
+    setTimeout(() => eyes.forEach(el => el.classList.remove('blink')), 110);
+  }
+
+  (function blinkLoop() {
+    const wait = 1400 + Math.random() * 2800;   // 1.4〜4.2秒のランダム間隔
+    setTimeout(() => {
+      blink();
+      if (Math.random() < 0.22) setTimeout(blink, 260);  // たまに2連続
+      blinkLoop();
+    }, wait);
+  })();
+
+  /* ---------- 2. 目がカーソルを追う ---------- */
+  let targetX = 0, targetY = 0;
+  let curX = 0,    curY = 0;
+
+  function lookAt(clientX, clientY) {
+    const r  = head.getBoundingClientRect();
+    const cx = r.left + r.width / 2;
+    const cy = r.top  + r.height * 0.45;   // 目のあたりを基準に
+    const dx = clientX - cx;
+    const dy = clientY - cy;
+    const d  = Math.hypot(dx, dy) || 1;
+    const reach = Math.min(d / 240, 1);    // 遠いほど大きく動く
+
+    targetX = (dx / d) * 9 * reach;
+    targetY = (dy / d) * 7 * reach;
+  }
+
+  window.addEventListener('mousemove', e => lookAt(e.clientX, e.clientY));
+  window.addEventListener('touchmove', e => {
+    if (e.touches[0]) lookAt(e.touches[0].clientX, e.touches[0].clientY);
+  }, { passive: true });
+  document.addEventListener('mouseleave', () => { targetX = 0; targetY = 0; });
+
+  /* ---------- 3. なめらかに反映（毎フレーム補間） ---------- */
+  function render() {
+    curX += (targetX - curX) * 0.15;
+    curY += (targetY - curY) * 0.15;
+
+    root.style.setProperty('--px', curX.toFixed(2) + 'px');
+    root.style.setProperty('--py', curY.toFixed(2) + 'px');
+
+    // 首をちょっとかしげる
+    head.style.transform = 'rotate(' + (curX * 0.5).toFixed(2) + 'deg)';
+
+    requestAnimationFrame(render);
+  }
+  requestAnimationFrame(render);
+
+  /* ---------- 4. クリックでびっくり ---------- */
+  document.addEventListener('pointerdown', () => {
+    blink();
+    chara.animate(
+      [
+        { transform: 'scale(1, 1)' },
+        { transform: 'scale(1.07, .93)' },
+        { transform: 'scale(1, 1)' }
+      ],
+      { duration: 340, easing: 'ease-out' }
+    );
+  });
+})();
+</script>
+</body>
+</html>
