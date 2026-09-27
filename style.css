@@ -271,10 +271,10 @@ body {
 
 .intro-bot {
   position: absolute;
-  top: -42px;
+  top: -35px;
   left: 50%;
-  width: 70px;
-  height: 70px;
+  width: 75px;
+  height: 75px;
   transform: translateX(-50%);
 }
 
