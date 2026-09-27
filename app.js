@@ -71,6 +71,9 @@ const settingsCurrent =
 const reloadButton =
   document.getElementById("reloadButton");
 
+const settingsClose =
+  document.getElementById("settingsClose");
+
 const MODEL_NAMES = {
   small: "小",
   medium: "中",
@@ -156,7 +159,6 @@ settingsClose.addEventListener(
 // 新DOM
 const deviceLangInfo = document.getElementById("deviceLangInfo");
 const voiceSelect = document.getElementById("voiceSelect");
-const settingsClose =document.getElementById("settingsClose");
 const voiceCurrent = document.getElementById("voiceCurrent");
 const voiceTestButton = document.getElementById("voiceTestButton");
 
