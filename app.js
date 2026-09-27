@@ -543,7 +543,6 @@ async function finishDay() {
 
     busy = false;
     input.disabled = false;
-    input.focus();
   }
 }
 
