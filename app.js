@@ -67,6 +67,58 @@ const settingsCurrent =
 const reloadButton =
   document.getElementById("reloadButton");
 
+const MODEL_NAMES = {
+  small: "小",
+  medium: "中",
+  large: "大"
+};
+
+
+function updateModelUI() {
+
+  const current =
+    localStorage.getItem(MODEL_KEY)
+    || DEFAULT_MODEL;
+
+  modelOptions.forEach(button => {
+
+    button.classList.toggle(
+      "selected",
+      button.dataset.model === current
+    );
+
+  });
+
+  settingsCurrent.textContent =
+    "現在：" + MODEL_NAMES[current];
+
+}
+
+
+modelOptions.forEach(button => {
+
+  button.addEventListener(
+    "click",
+    () => {
+
+      const model =
+        button.dataset.model;
+
+      localStorage.setItem(
+        MODEL_KEY,
+        model
+      );
+
+      updateModelUI();
+
+    }
+  );
+
+});
+
+
+updateModelUI();
+
 /* ========================================
    設定パネル
 ======================================== */
@@ -80,6 +132,14 @@ bot.addEventListener(
   }
 );
 
+reloadButton.addEventListener(
+  "click",
+  () => {
+
+    location.reload();
+
+  }
+);
 /* ========================================
    初回案内
 ======================================== */
