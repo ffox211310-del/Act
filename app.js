@@ -41,7 +41,7 @@ const MODEL_ID =
 let engine = null;
 let busy = false;
 let voice = null;
-
+let voiceMode = false;
 
 /* ========================================
    DOM
@@ -738,12 +738,7 @@ if (voice && answer) {
 
   await voice.speak(answer);
 
-  /*
-   * 読み上げ終了後
-   * マイクを自動再開
-   */
-
-  if (!busy) {
+  if (voiceMode && !busy) {
     voice.start();
   }
 
@@ -866,12 +861,22 @@ micButton.addEventListener(
       return;
     }
 
-    if (voice.listening) {
+    if (voiceMode) {
 
-      voice.stop();
+      voiceMode = false;
+
+      if (voice.listening) {
+        voice.stop();
+      }
+
+      micButton.classList.remove(
+        "listening"
+      );
 
       return;
     }
+
+    voiceMode = true;
 
     voice.start();
 
