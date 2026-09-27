@@ -7,6 +7,10 @@ export class VoiceManager {
     onError
   } = {}) {
 
+    this.LANG_KEY = "personal_ai_voice_lang";
+    this.URI_KEY = "personal_ai_voice_uri";
+    this.lang = localStorage.getItem(this.LANG_KEY) || navigator.language || "ja-JP";
+    this.voiceURI = localStorage.getItem(this.URI_KEY) || null;
     this.onResult = onResult;
     this.onStart = onStart;
     this.onEnd = onEnd;
@@ -30,7 +34,7 @@ export class VoiceManager {
     this.recognition =
       new SpeechRecognition();
 
-    this.recognition.lang = "ja-JP";
+    this.recognition.lang = this.lang;
 
     this.recognition.continuous = false;
 
@@ -192,7 +196,13 @@ export class VoiceManager {
       const utterance =
         new SpeechSynthesisUtterance(text);
 
-      utterance.lang = "ja-JP";
+      const voice = this.getCurrentVoice();
+         if (voice) {
+           utterance.voice = voice;
+           utterance.lang = voice.lang;
+           } else {
+           utterance.lang = this.lang || "ja-JP";
+      }
 
       utterance.rate = 1.0;
 
@@ -239,5 +249,35 @@ export class VoiceManager {
     this.speaking = false;
 
   }
+
+  getVoices() { return speechSynthesis.getVoices(); }
+getCurrentVoice() {
+  const voices = this.getVoices();
+  return voices.find(v => v.voiceURI === this.voiceURI) || this.findBestVoiceForLang(this.lang);
+}
+findBestVoiceForLang(lang) {
+  const voices = this.getVoices();
+  return voices.find(v => v.lang === lang)
+      || voices.find(v => v.lang.startsWith(lang.split("-")[0]))
+      || voices[0] || null;
+}
+setLang(lang) {
+  this.lang = lang;
+  localStorage.setItem(this.LANG_KEY, lang);
+  if (this.recognition) this.recognition.lang = lang;
+}
+setVoiceByURI(uri) {
+  this.voiceURI = uri;
+  localStorage.setItem(this.URI_KEY, uri);
+  const v = this.getVoices().find(x => x.voiceURI === uri);
+  if (v) this.setLang(v.lang);
+}
+getDeviceInfo() {
+  return {
+    language: navigator.language,
+    languages: navigator.languages,
+    voices: this.getVoices()
+  };
+}
 
 }
