@@ -373,3 +373,219 @@ body {
   opacity: .45;
   cursor: wait;
 }
+
+
+/* ========================================
+   初回案内
+======================================== */
+
+.intro-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 24px;
+
+  background: rgba(3, 15, 15, 0.78);
+  backdrop-filter: blur(10px);
+
+  opacity: 1;
+  visibility: visible;
+
+  transition:
+    opacity 0.45s ease,
+    visibility 0.45s ease;
+}
+
+.intro-overlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+
+/* ---------- カード ---------- */
+
+.intro-card {
+  position: relative;
+
+  width: min(520px, 100%);
+
+  padding: 70px 32px 30px;
+
+  border: 1px solid rgba(79, 209, 196, 0.25);
+  border-radius: 28px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(22, 48, 47, 0.97),
+      rgba(9, 27, 26, 0.97)
+    );
+
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.45),
+    0 0 40px rgba(79, 209, 196, 0.08);
+
+  color: #e8f5f3;
+
+  transform: translateY(0) scale(1);
+
+  transition:
+    transform 0.45s ease,
+    opacity 0.45s ease;
+}
+
+
+/* ---------- 小さいアイツ ---------- */
+
+.intro-bot {
+  position: absolute;
+
+  top: -42px;
+  left: 50%;
+
+  width: 84px;
+  height: 84px;
+
+  transform: translateX(-50%);
+}
+
+
+/* 光 */
+
+.intro-halo {
+  position: absolute;
+  inset: -15px;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(79, 209, 196, 0.28),
+      rgba(79, 209, 196, 0) 70%
+    );
+}
+
+
+/* 本体 */
+
+.intro-face {
+  position: absolute;
+  inset: 8px;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle at 35% 30%,
+      #2c7770,
+      #15504c 55%,
+      #0d3532
+    );
+
+  box-shadow:
+    inset 0 0 15px rgba(255,255,255,0.04),
+    0 0 20px rgba(79, 209, 196, 0.2);
+}
+
+
+/* 目 */
+
+.intro-eyes {
+  position: absolute;
+
+  inset: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 12px;
+}
+
+.intro-eye {
+  width: 10px;
+  height: 32px;
+
+  border-radius: 999px;
+
+  background: #f4ffff;
+
+  box-shadow:
+    0 0 8px rgba(255,255,255,0.35);
+}
+
+
+/* ---------- タイトル ---------- */
+
+.intro-card h1 {
+  margin: 0 0 28px;
+
+  text-align: center;
+
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+
+/* ---------- 説明 ---------- */
+
+.intro-text {
+  font-size: 14px;
+  line-height: 1.9;
+  letter-spacing: 0.02em;
+}
+
+.intro-text p {
+  margin: 0 0 18px;
+}
+
+.intro-note {
+  margin-top: 26px !important;
+
+  font-size: 12px;
+
+  color: rgba(232, 245, 243, 0.55);
+}
+
+
+/* ---------- はじめる ---------- */
+
+#introStart {
+  display: block;
+
+  width: 100%;
+
+  margin-top: 28px;
+  padding: 13px 20px;
+
+  border: none;
+  border-radius: 999px;
+
+  background: #4fd1c4;
+  color: #06211f;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
+}
+
+#introStart:hover {
+  transform: translateY(-2px);
+}
+
+#introStart:active {
+  transform: scale(0.98);
+}
