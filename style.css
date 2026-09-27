@@ -316,12 +316,22 @@ body {
 ======================================== */
 
 .composer {
-  position: relative;
+  position: fixed;
 
-  z-index: 1;
+  left: 50%;
+  bottom: 32px;
 
-  width: min(100%, 460px);
+  transform: translateX(-50%);
+
+  width: min(90vw, 500px);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  gap: 18px;
 }
+
 
 .composer input {
   width: 100%;
