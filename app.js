@@ -710,8 +710,6 @@ async function askAI(text) {
 
     console.error(error);
 
-    await fadeOutText();
-
     answer =
   "ごめん、ちょっと考えがうまくまとまらなかった。";
 
