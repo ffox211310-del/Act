@@ -2,7 +2,13 @@
   box-sizing: border-box;
 }
 
-html,
+html {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background-color: #061413;
+  background: #061413;
+}
 body {
   margin: 0;
   height: 100%;
