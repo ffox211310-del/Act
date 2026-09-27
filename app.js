@@ -145,9 +145,18 @@ reloadButton.addEventListener(
   }
 );
 
+settingsClose.addEventListener(
+  "click",
+  () => {
+
+    settingsPanel.classList.remove("open");
+
+  }
+);
 // 新DOM
 const deviceLangInfo = document.getElementById("deviceLangInfo");
 const voiceSelect = document.getElementById("voiceSelect");
+const settingsClose =document.getElementById("settingsClose");
 const voiceCurrent = document.getElementById("voiceCurrent");
 const voiceTestButton = document.getElementById("voiceTestButton");
 
