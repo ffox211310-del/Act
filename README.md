@@ -1,2 +1,2 @@
-# Act
-AnimationCharacter
+# パーソナルAI
+CronyGOのパーソナルモードのプロトタイプ
