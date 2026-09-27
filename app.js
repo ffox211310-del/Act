@@ -715,10 +715,14 @@ async function askAI(text) {
   }
 
 
-  busy = false;
+busy = false;
 
-  input.disabled = false;
-  input.focus();
+input.disabled = false;
+
+// 入力欄からフォーカスを外す
+if (document.activeElement === input) {
+  input.blur();
+}
 }
 
 
