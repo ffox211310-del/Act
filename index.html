@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>パーソナルAI</title>
+<title>おやすみモード</title>
 <style>
   * { box-sizing: border-box; }
 
@@ -86,7 +86,7 @@
       inset 0 10px 20px -10px rgba(255,255,255,.65);
   }
 
-  /* 目だけ（口なし） */
+  /* 目だけ */
   .eyes {
     position: absolute;
     left: 50%;
@@ -105,6 +105,18 @@
     box-shadow: 0 0 14px rgba(255,255,255,.55);
   }
   .eye.blink { transform: scaleY(.08); }
+
+  /* ★ 喋ってる風：目がモニョモニョ */
+  .bot.speaking .eye {
+    animation: talk .5s ease-in-out infinite alternate;
+  }
+  .bot.speaking .eye:nth-child(2) {
+    animation-delay: .25s;
+  }
+  @keyframes talk {
+    from { transform: scaleY(.62) scaleX(1);    }
+    to   { transform: scaleY(1.06) scaleX(.94); }
+  }
 
   /* ===== セリフ ===== */
   .bubble {
@@ -130,7 +142,7 @@
     to   { opacity: 1; transform: translateY(0);   filter: blur(0);   }
   }
 
-  /* ===== 入力欄（1本だけ） ===== */
+  /* ===== 入力欄 ===== */
   .composer {
     position: relative;
     z-index: 1;
@@ -201,8 +213,12 @@
 })();
 
 /* ---------- 瞬き ---------- */
+const bot  = document.getElementById('bot');
 const eyes = document.querySelectorAll('.eye');
+
 function blink() {
+  // 喋ってる間は瞬きしない（モニョモニョを邪魔しない）
+  if (bot.classList.contains('speaking')) return;
   eyes.forEach(e => e.classList.add('blink'));
   setTimeout(() => eyes.forEach(e => e.classList.remove('blink')), 120);
 }
@@ -214,19 +230,42 @@ function blink() {
   }, 1800 + Math.random() * 3000);
 })();
 
-/* ---------- フェードイン表示 ---------- */
+/* ---------- 喋ってる風モード ---------- */
+let speakTimer = null;
+
+function startSpeaking() {
+  bot.classList.add('speaking');
+  clearTimeout(speakTimer);
+}
+
+function stopSpeaking() {
+  clearTimeout(speakTimer);
+  speakTimer = setTimeout(() => bot.classList.remove('speaking'), 100);
+}
+
+/* ---------- フェードイン表示（喋ってる風と連動） ---------- */
 const bubble = document.getElementById('bubble');
-let typeTimer = null;
 
 function showText(text, speed = 0.07) {
-  clearTimeout(typeTimer);
   bubble.innerHTML = '';
-  [...text].forEach((ch, i) => {
+
+  // 喋り始める
+  startSpeaking();
+
+  const chars = [...text];
+  chars.forEach((ch, i) => {
     const span = document.createElement('span');
     span.textContent = ch;
     span.style.animationDelay = (i * speed).toFixed(2) + 's';
     bubble.appendChild(span);
   });
+
+  // 文字が出終わったら喋り終わる
+  const totalMs = chars.length * speed * 1000 + 500;
+  clearTimeout(speakTimer);
+  speakTimer = setTimeout(() => {
+    bot.classList.remove('speaking');
+  }, totalMs);
 }
 
 /* ---------- Enterで送信 ---------- */
@@ -243,10 +282,8 @@ input.addEventListener('keydown', async (e) => {
   input.value = '';
   busy = true;
 
-  // ユーザーの発話を表示（仮）
   showText('「' + text + '」');
 
-  // 仮の返答（後でAIに差し替える場所）
   await new Promise(r => setTimeout(r, 1200));
   showText('うん、聞いてるよ。');
 
