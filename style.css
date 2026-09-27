@@ -769,3 +769,43 @@ body {
 .reload-button:active {
   transform: scale(0.98);
 }
+
+/* ========================================
+   マイクボタン
+======================================== */
+
+.mic-button {
+  width: 48px;
+  height: 48px;
+
+  flex-shrink: 0;
+
+  border: 1px solid rgba(79, 209, 199, 0.35);
+  border-radius: 50%;
+
+  background: rgba(15, 45, 45, 0.8);
+
+  color: #4FD1C5;
+  font-size: 14px;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.mic-button:active {
+  transform: scale(0.92);
+}
+
+.mic-button.listening {
+  background: rgba(79, 209, 199, 0.2);
+
+  box-shadow:
+    0 0 12px rgba(79, 209, 199, 0.5),
+    0 0 28px rgba(79, 209, 199, 0.2);
+
+  color: #ffffff;
+}
