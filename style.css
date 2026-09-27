@@ -1,0 +1,375 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family:
+    "Hiragino Sans",
+    "Yu Gothic",
+    "Meiryo",
+    system-ui,
+    sans-serif;
+
+  color: #d8f5f1;
+
+  background:
+    radial-gradient(
+      circle at 50% 38%,
+      #123a38 0%,
+      #0a2322 45%,
+      #061413 100%
+    );
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  padding: 32px 22px;
+  gap: 34px;
+
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ========================================
+   星空
+======================================== */
+
+.stars {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.star {
+  position: absolute;
+
+  width: 2px;
+  height: 2px;
+
+  border-radius: 50%;
+
+  background: #bff5ee;
+
+  animation: twinkle 5s ease-in-out infinite;
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: .08;
+    transform: scale(.7);
+  }
+
+  50% {
+    opacity: .45;
+    transform: scale(1);
+  }
+}
+
+/* ========================================
+   キャラクター
+======================================== */
+
+.bot {
+  position: relative;
+
+  width: 150px;
+  height: 150px;
+
+  z-index: 1;
+
+  animation: float 5.2s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(4px);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/* ========================================
+   ハロー
+======================================== */
+
+.halo {
+  position: absolute;
+  inset: -55px;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(79,209,197,.32) 0%,
+      rgba(79,209,197,0) 68%
+    );
+
+  animation: halo 5.2s ease-in-out infinite;
+
+  pointer-events: none;
+}
+
+@keyframes halo {
+  0%,
+  100% {
+    transform: scale(.92);
+    opacity: .55;
+  }
+
+  50% {
+    transform: scale(1.08);
+    opacity: .9;
+  }
+}
+
+/* ========================================
+   顔
+======================================== */
+
+.face {
+  position: absolute;
+  inset: 0;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle at 34% 26%,
+      #7ee6db 0%,
+      #4FD1C5 46%,
+      #2f9e94 100%
+    );
+
+  box-shadow:
+    0 22px 48px -18px rgba(79,209,197,.7),
+    inset 0 -14px 26px -12px rgba(0,70,64,.5),
+    inset 0 10px 20px -10px rgba(255,255,255,.65);
+}
+
+/* ========================================
+   目
+======================================== */
+
+.eyes {
+  position: absolute;
+
+  left: 50%;
+  top: 47%;
+
+  display: flex;
+  gap: 20px;
+
+  transform: translate(-50%, -50%);
+}
+
+.eye {
+  width: 18px;
+  height: 62px;
+
+  border-radius: 999px;
+
+  background: #fff;
+
+  transform-origin: 50% 50%;
+
+  transition:
+    transform .1s cubic-bezier(.4,0,.2,1);
+
+  box-shadow:
+    0 0 14px rgba(255,255,255,.55);
+}
+
+/* ========================================
+   瞬き
+======================================== */
+
+.eye.blink {
+  transform: scaleY(.08);
+}
+
+/* ========================================
+   喋っているとき
+======================================== */
+
+.bot.speaking .eye {
+  animation:
+    talk .5s ease-in-out infinite alternate;
+}
+
+.bot.speaking .eye:nth-child(2) {
+  animation-delay: .25s;
+}
+
+@keyframes talk {
+  from {
+    transform:
+      scaleY(.62)
+      scaleX(1);
+  }
+
+  to {
+    transform:
+      scaleY(1.06)
+      scaleX(.94);
+  }
+}
+
+/* ========================================
+   セリフ
+======================================== */
+
+.bubble {
+  position: relative;
+
+  z-index: 1;
+
+  min-height: 3.2em;
+  max-width: 32ch;
+
+  text-align: center;
+
+  font-size: 17px;
+  line-height: 2;
+
+  letter-spacing: .06em;
+  font-weight: 300;
+
+  color: #d8f5f1;
+
+  text-shadow:
+    0 0 22px rgba(79,209,197,.35);
+
+  transition:
+    opacity .4s ease,
+    filter .4s ease;
+}
+
+/* 文字1文字ずつ */
+.bubble span {
+  display: inline-block;
+
+  opacity: 0;
+
+  animation:
+    fadeUp .7s cubic-bezier(.2,.8,.3,1)
+    forwards;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+    filter: blur(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+/* 消えるとき */
+.bubble.fade-out {
+  opacity: 0;
+  filter: blur(5px);
+}
+
+/* ========================================
+   ロード中
+======================================== */
+
+.bubble.loading {
+  opacity: .75;
+  animation: loadingPulse 2s ease-in-out infinite;
+}
+
+@keyframes loadingPulse {
+  0%,
+  100% {
+    opacity: .45;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ========================================
+   入力欄
+======================================== */
+
+.composer {
+  position: relative;
+
+  z-index: 1;
+
+  width: min(100%, 460px);
+}
+
+.composer input {
+  width: 100%;
+
+  padding: 16px 22px;
+
+  font-size: 15px;
+  font-family: inherit;
+
+  text-align: center;
+
+  color: #e6faf7;
+
+  background:
+    rgba(79,209,197,.08);
+
+  border:
+    1px solid rgba(79,209,197,.3);
+
+  border-radius: 999px;
+
+  outline: none;
+
+  transition:
+    background .3s,
+    border-color .3s,
+    box-shadow .3s,
+    opacity .3s;
+}
+
+.composer input::placeholder {
+  color: rgba(216,245,241,.35);
+
+  letter-spacing: .1em;
+}
+
+.composer input:focus {
+  background:
+    rgba(79,209,197,.14);
+
+  border-color:
+    rgba(79,209,197,.7);
+
+  box-shadow:
+    0 0 26px -6px rgba(79,209,197,.6);
+}
+
+.composer input:disabled {
+  opacity: .45;
+  cursor: wait;
+}
