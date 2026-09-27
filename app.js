@@ -14,8 +14,29 @@ import {
    WebLLM
 ======================================== */
 
+const MODELS = {
+  small:
+    "Qwen2.5-0.5B-Instruct-q4f16_1-MLC",
+
+  medium:
+    "Qwen2.5-1.5B-Instruct-q4f16_1-MLC",
+
+  large:
+    "Qwen2.5-3B-Instruct-q4f16_1-MLC"
+};
+
+const MODEL_KEY =
+  "personal_ai_model";
+
+const DEFAULT_MODEL =
+  "medium";
+
+const selectedModel =
+  localStorage.getItem(MODEL_KEY)
+  || DEFAULT_MODEL;
+
 const MODEL_ID =
-  "Qwen2.5-1.5B-Instruct-q4f16_1-MLC";
+  MODELS[selectedModel];
 
 let engine = null;
 let busy = false;
@@ -33,6 +54,18 @@ const bubble =
 
 const input =
   document.getElementById("input");
+
+const settingsPanel =
+  document.getElementById("settingsPanel");
+
+const modelOptions =
+  document.querySelectorAll(".model-option");
+
+const settingsCurrent =
+  document.getElementById("settingsCurrent");
+
+const reloadButton =
+  document.getElementById("reloadButton");
 
 /* ========================================
    初回案内
