@@ -58,19 +58,39 @@ export class VoiceManager {
 
     this.recognition.onresult = event => {
 
-      const result =
-        event.results[
-          event.results.length - 1
-        ];
+  const result =
+    event.results[
+      event.results.length - 1
+    ];
 
-      const text =
-        result[0].transcript.trim();
+  const text =
+    result[0].transcript.trim();
 
-      if (text && this.onResult) {
-        this.onResult(text);
-      }
+  if (!text) {
+    return;
+  }
 
-    };
+  /*
+   * 同じ認識結果の重複送信を防止
+   */
+
+  const now = Date.now();
+
+  if (
+    text === lastTranscript &&
+    now - lastTranscriptTime < 2000
+  ) {
+    return;
+  }
+
+  lastTranscript = text;
+  lastTranscriptTime = now;
+
+  if (this.onResult) {
+    this.onResult(text);
+  }
+
+};
 
 
     /* ---------- 認識終了 ---------- */
