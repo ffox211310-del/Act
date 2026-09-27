@@ -1,7 +1,3 @@
-/* ========================================
-   Voice Manager
-======================================== */
-
 export class VoiceManager {
 
   constructor({
@@ -20,14 +16,14 @@ export class VoiceManager {
     this.speaking = false;
     this.listening = false;
 
+    this.lastTranscript = "";
+    this.lastTranscriptTime = 0;
+
     const SpeechRecognition =
       window.SpeechRecognition ||
       window.webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
-      console.warn(
-        "Speech Recognition is not supported."
-      );
       return;
     }
 
@@ -41,8 +37,6 @@ export class VoiceManager {
     this.recognition.interimResults = false;
 
 
-    /* ---------- 認識開始 ---------- */
-
     this.recognition.onstart = () => {
 
       this.listening = true;
@@ -54,46 +48,42 @@ export class VoiceManager {
     };
 
 
-    /* ---------- 認識結果 ---------- */
-
     this.recognition.onresult = event => {
 
-  const result =
-    event.results[
-      event.results.length - 1
-    ];
+      const result =
+        event.results[
+          event.results.length - 1
+        ];
 
-  const text =
-    result[0].transcript.trim();
+      const text =
+        result[0].transcript.trim();
 
-  if (!text) {
-    return;
-  }
-
-  /*
-   * 同じ認識結果の重複送信を防止
-   */
-
-  const now = Date.now();
-
-  if (
-    text === lastTranscript &&
-    now - lastTranscriptTime < 2000
-  ) {
-    return;
-  }
-
-  lastTranscript = text;
-  lastTranscriptTime = now;
-
-  if (this.onResult) {
-    this.onResult(text);
-  }
-
-};
+      if (!text) {
+        return;
+      }
 
 
-    /* ---------- 認識終了 ---------- */
+      /* 重複防止 */
+
+      const now = Date.now();
+
+      if (
+        text === this.lastTranscript &&
+        now - this.lastTranscriptTime < 2000
+      ) {
+        return;
+      }
+
+      this.lastTranscript = text;
+      this.lastTranscriptTime = now;
+
+
+      if (this.onResult) {
+        this.onResult(text);
+      }
+
+    };
+
 
     this.recognition.onend = () => {
 
@@ -105,8 +95,6 @@ export class VoiceManager {
 
     };
 
-
-    /* ---------- エラー ---------- */
 
     this.recognition.onerror = event => {
 
@@ -125,10 +113,6 @@ export class VoiceManager {
 
   }
 
-
-  /* ========================================
-     マイク開始
-  ======================================== */
 
   start() {
 
@@ -160,10 +144,6 @@ export class VoiceManager {
   }
 
 
-  /* ========================================
-     マイク停止
-  ======================================== */
-
   stop() {
 
     if (!this.recognition) {
@@ -186,15 +166,13 @@ export class VoiceManager {
   }
 
 
-  /* ========================================
-     読み上げ
-  ======================================== */
-
   speak(text) {
 
     return new Promise(resolve => {
 
-      if (!("speechSynthesis" in window)) {
+      if (
+        !("speechSynthesis" in window)
+      ) {
 
         resolve();
 
@@ -202,9 +180,11 @@ export class VoiceManager {
       }
 
 
-      this.speaking = true;
+      /* マイク停止 */
 
       this.stop();
+
+      this.speaking = true;
 
       window.speechSynthesis.cancel();
 
@@ -246,13 +226,11 @@ export class VoiceManager {
   }
 
 
-  /* ========================================
-     読み上げ停止
-  ======================================== */
-
   stopSpeaking() {
 
-    if (!("speechSynthesis" in window)) {
+    if (
+      !("speechSynthesis" in window)
+    ) {
       return;
     }
 
