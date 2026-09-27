@@ -34,6 +34,44 @@ const bubble =
 const input =
   document.getElementById("input");
 
+/* ========================================
+   初回案内
+======================================== */
+
+const introOverlay =
+  document.getElementById("introOverlay");
+
+const introStart =
+  document.getElementById("introStart");
+
+const INTRO_KEY =
+  "personal_ai_intro_seen";
+
+
+function closeIntro() {
+
+  introOverlay.classList.add("hidden");
+
+  localStorage.setItem(
+    INTRO_KEY,
+    "true"
+  );
+}
+
+
+if (
+  localStorage.getItem(INTRO_KEY) === "true"
+) {
+
+  introOverlay.classList.add("hidden");
+
+}
+
+
+introStart.addEventListener(
+  "click",
+  closeIntro
+);
 
 /* ========================================
    会話履歴
