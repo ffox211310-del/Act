@@ -1,5 +1,5 @@
 import * as webllm from "@mlc-ai/web-llm";
-
+import { VoiceManager } from "./voice.js";
 import {
   loadHistory,
   saveMessage,
@@ -40,6 +40,7 @@ const MODEL_ID =
 
 let engine = null;
 let busy = false;
+let voice = null;
 
 
 /* ========================================
@@ -54,6 +55,9 @@ const bubble =
 
 const input =
   document.getElementById("input");
+
+const micButton =
+  document.getElementById("micButton");
 
 const settingsPanel =
   document.getElementById("settingsPanel");
@@ -772,7 +776,58 @@ input.addEventListener(
   }
 );
 
+//ボイス系
+voice = new VoiceManager({
+  
+  onResult: async text => {
 
+    if (busy) {
+      return;
+    }
+
+    if (!text) {
+      return;
+    }
+
+    if (isEndCommand(text)) {
+
+      await finishDay();
+
+      return;
+    }
+
+    await askAI(text);
+
+  },
+
+  onStart: () => {
+
+    micButton.classList.add("listening");
+
+  },
+
+  onEnd: () => {
+
+    micButton.classList.remove(
+      "listening"
+    );
+
+  },
+
+  onError: error => {
+
+    micButton.classList.remove(
+      "listening"
+    );
+
+    console.warn(
+      "Voice error:",
+      error
+    );
+
+  }
+
+});
 /* ========================================
    起動
 ======================================== */
