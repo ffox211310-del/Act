@@ -820,3 +820,39 @@ body {
 
   color: #ffffff;
 }
+
+/* 読み上げ言語設定 */
+.settings-divider {
+  height: 1px;
+  background: rgba(255,255,255,0.08);
+  margin: 22px 0;
+}
+.settings-note {
+  font-size: 11px;
+  line-height: 1.7;
+  color: rgba(232,245,243,0.5);
+  text-align: center;
+  word-break: break-all;
+}
+.voice-select {
+  width: 100%;
+  padding: 11px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(79,209,196,0.28);
+  background: rgba(255,255,255,0.06);
+  color: #e8f5f3;
+  font-size: 13px;
+}
+.voice-select option { background: #0a2322; }
+.voice-test-button {
+  width: 100%;
+  margin-top: 12px;
+  padding: 10px;
+  border: 1px solid rgba(79,209,196,0.32);
+  border-radius: 999px;
+  background: rgba(79,209,196,0.09);
+  color: #4fd1c4;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
