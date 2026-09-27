@@ -563,6 +563,8 @@ async function askAI(text) {
 
   busy = true;
   input.disabled = true;
+ 
+  let answer = "";
 
 
   /* ---------- ユーザー発話 ---------- */
@@ -675,14 +677,13 @@ async function askAI(text) {
       });
 
 
-    const answer =
-      response
-        .choices?.[0]
-        ?.message
-        ?.content
-        ||
-        "うまく答えられなかったみたい。";
-
+    answer =
+  response
+    .choices?.[0]
+    ?.message
+    ?.content
+    ||
+    "うまく答えられなかったみたい。";
 
     /*
      * AIの返答を保存
@@ -712,9 +713,12 @@ async function askAI(text) {
 
     await fadeOutText();
 
-    showText(
-      "ごめん、ちょっと考えがうまくまとまらなかった。"
-    );
+    answer =
+  "ごめん、ちょっと考えがうまくまとまらなかった。";
+
+await fadeOutText();
+
+showText(answer);
 
   }
 
@@ -726,6 +730,26 @@ input.disabled = false;
 // 入力欄からフォーカスを外す
 if (document.activeElement === input) {
   input.blur();
+}
+
+
+/* ========================================
+   回答読み上げ
+======================================== */
+
+if (voice && answer) {
+
+  await voice.speak(answer);
+
+  /*
+   * 読み上げ終了後
+   * マイクを自動再開
+   */
+
+  if (!busy) {
+    voice.start();
+  }
+
 }
 }
 
@@ -828,6 +852,35 @@ voice = new VoiceManager({
   }
 
 });
+
+/* ========================================
+   マイクボタン
+======================================== */
+
+micButton.addEventListener(
+  "click",
+  () => {
+
+    if (!voice) {
+      return;
+    }
+
+    if (busy) {
+      return;
+    }
+
+    if (voice.listening) {
+
+      voice.stop();
+
+      return;
+    }
+
+    voice.start();
+
+  }
+);
+
 /* ========================================
    起動
 ======================================== */
