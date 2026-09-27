@@ -1,5 +1,15 @@
 import * as webllm from "@mlc-ai/web-llm";
 
+import {
+  loadHistory,
+  saveMessage,
+  loadMemory,
+  saveMemory,
+  createMemory,
+  clearHistory
+} from "./memory.js";
+
+
 /* ========================================
    WebLLM
 ======================================== */
@@ -15,9 +25,21 @@ let busy = false;
    DOM
 ======================================== */
 
-const bot = document.getElementById("bot");
-const bubble = document.getElementById("bubble");
-const input = document.getElementById("input");
+const bot =
+  document.getElementById("bot");
+
+const bubble =
+  document.getElementById("bubble");
+
+const input =
+  document.getElementById("input");
+
+
+/* ========================================
+   会話履歴
+======================================== */
+
+let history = loadHistory();
 
 
 /* ========================================
@@ -26,11 +48,13 @@ const input = document.getElementById("input");
 
 (function createStars() {
 
-  const box = document.getElementById("stars");
+  const box =
+    document.getElementById("stars");
 
   for (let i = 0; i < 50; i++) {
 
-    const star = document.createElement("div");
+    const star =
+      document.createElement("div");
 
     star.className = "star";
 
@@ -44,7 +68,8 @@ const input = document.getElementById("input");
       (Math.random() * 5).toFixed(2) + "s";
 
     star.style.opacity =
-      (0.1 + Math.random() * 0.4).toFixed(2);
+      (0.1 + Math.random() * 0.4)
+        .toFixed(2);
 
     box.appendChild(star);
   }
@@ -61,8 +86,9 @@ const eyes =
 
 function blink() {
 
-  // 喋っているときは瞬きしない
-  if (bot.classList.contains("speaking")) {
+  if (
+    bot.classList.contains("speaking")
+  ) {
     return;
   }
 
@@ -122,7 +148,7 @@ function stopSpeaking(delay = 100) {
 
 
 /* ========================================
-   テロップ表示
+   テロップ
 ======================================== */
 
 function showText(
@@ -167,7 +193,7 @@ function showText(
 
 
 /* ========================================
-   テロップを消す
+   フェードアウト
 ======================================== */
 
 async function fadeOutText() {
@@ -180,12 +206,14 @@ async function fadeOutText() {
 
   bubble.innerHTML = "";
 
-  bubble.classList.remove("fade-out");
+  bubble.classList.remove(
+    "fade-out"
+  );
 }
 
 
 /* ========================================
-   ステータス表示
+   ステータス
 ======================================== */
 
 function showStatus(text) {
@@ -210,48 +238,51 @@ async function loadModel() {
 
   try {
 
-    showStatus("AIを起動しています…");
+    showStatus(
+      "AIを起動しています…"
+    );
 
     engine =
       await webllm.CreateMLCEngine(
         MODEL_ID,
         {
-          initProgressCallback: progress => {
+          initProgressCallback:
+            progress => {
 
-            const text =
-              progress.text || "";
+              const text =
+                progress.text || "";
 
-            console.log(
-              "[WebLLM]",
-              text
-            );
-
-            if (
-              text.includes("Loading") ||
-              text.includes("loading")
-            ) {
-
-              showStatus(
-                "AIを準備しています…"
+              console.log(
+                "[WebLLM]",
+                text
               );
 
-            } else if (
-              text.includes("Fetching") ||
-              text.includes("fetch")
-            ) {
+              if (
+                text.includes("Loading") ||
+                text.includes("loading")
+              ) {
 
-              showStatus(
-                "AIを迎えにいっています…"
-              );
+                showStatus(
+                  "AIを準備しています…"
+                );
 
-            } else {
+              } else if (
+                text.includes("Fetching") ||
+                text.includes("fetch")
+              ) {
 
-              showStatus(
-                "もうすぐ話せるよ…"
-              );
+                showStatus(
+                  "AIを迎えにいっています…"
+                );
+
+              } else {
+
+                showStatus(
+                  "もうすぐ話せるよ…"
+                );
+              }
+
             }
-
-          }
         }
       );
 
@@ -271,7 +302,105 @@ async function loadModel() {
     );
 
   }
+}
 
+
+/* ========================================
+   終了ワード
+======================================== */
+
+function isEndCommand(text) {
+
+  const commands = [
+    "今日は終了",
+    "今日はおやすみ"
+  ];
+
+  return commands.includes(
+    text.trim()
+  );
+}
+
+
+/* ========================================
+   記憶整理
+======================================== */
+
+async function finishDay() {
+
+  busy = true;
+  input.disabled = true;
+
+  await fadeOutText();
+
+  showStatus(
+    "今日の記憶を整理中…"
+  );
+
+  try {
+
+    /*
+     * 今日の会話をQwenに要約させる
+     */
+
+    const memory =
+      await createMemory(
+        engine,
+        history
+      );
+
+    /*
+     * 保存
+     */
+
+    saveMemory(memory);
+
+    /*
+     * 今回の履歴は役目を終えたので削除
+     */
+
+    clearHistory();
+
+    history = [];
+
+    await fadeOutText();
+
+    showText(
+      "今日のこと、覚えておくね。"
+    );
+
+    /*
+     * テロップを少し見せる
+     */
+
+    await new Promise(resolve =>
+      setTimeout(resolve, 1800)
+    );
+
+    /*
+     * CronyGOへ移動
+     */
+
+    window.location.href =
+      "https://cronygo.vercel.app";
+
+  } catch (error) {
+
+    console.error(
+      "Memory error:",
+      error
+    );
+
+    await fadeOutText();
+
+    showText(
+      "ごめん、今日は記憶を整理できなかった…"
+    );
+
+    busy = false;
+    input.disabled = false;
+    input.focus();
+  }
 }
 
 
@@ -288,9 +417,8 @@ async function askAI(text) {
   busy = true;
   input.disabled = true;
 
-  /*
-   * 一度ユーザー発話を表示
-   */
+
+  /* ---------- ユーザー発話 ---------- */
 
   await fadeOutText();
 
@@ -300,16 +428,28 @@ async function askAI(text) {
   );
 
   /*
-   * 少し間を置く
+   * 履歴へ保存
    */
+
+  saveMessage(
+    "user",
+    text
+  );
+
+  history.push({
+    role: "user",
+    content: text
+  });
+
+
+  /* ---------- 少し間 ---------- */
 
   await new Promise(resolve =>
     setTimeout(resolve, 500)
   );
 
-  /*
-   * AI思考中
-   */
+
+  /* ---------- 思考 ---------- */
 
   await fadeOutText();
 
@@ -317,28 +457,69 @@ async function askAI(text) {
     "考えているよ…"
   );
 
+
   try {
+
+    /*
+     * 前回の記憶
+     */
+
+    const memory =
+      loadMemory();
+
+
+    /*
+     * システムプロンプト
+     */
+
+    const systemPrompt =
+      "あなたは親しみやすいパーソナルAIです。" +
+      "日本語で自然に会話してください。" +
+      "回答は簡潔にしてください。" +
+      "堅苦しい表現は避けてください。";
+
+
+    /*
+     * 前回の記憶があれば追加
+     */
+
+    const messages = [
+
+      {
+        role: "system",
+        content:
+          memory
+            ? systemPrompt +
+              "\n\n[前回のあらすじ]\n" +
+              memory
+            : systemPrompt
+      }
+
+    ];
+
+
+    /*
+     * 今日の会話
+     */
+
+    history.forEach(message => {
+
+      messages.push({
+        role: message.role,
+        content: message.content
+      });
+
+    });
+
+
+    /*
+     * AI生成
+     */
 
     const response =
       await engine.chat.completions.create({
 
-        messages: [
-
-          {
-            role: "system",
-            content:
-              "あなたは親しみやすいパーソナルAIです。" +
-              "日本語で自然に会話してください。" +
-              "回答は簡潔にしてください。" +
-              "堅苦しい表現は避けてください。"
-          },
-
-          {
-            role: "user",
-            content: text
-          }
-
-        ],
+        messages,
 
         temperature: 0.7,
 
@@ -346,13 +527,37 @@ async function askAI(text) {
 
       });
 
+
     const answer =
-      response.choices?.[0]?.message?.content
-      || "うまく答えられなかったみたい。";
+      response
+        .choices?.[0]
+        ?.message
+        ?.content
+        ||
+        "うまく答えられなかったみたい。";
+
+
+    /*
+     * AIの返答を保存
+     */
+
+    saveMessage(
+      "assistant",
+      answer
+    );
+
+    history.push({
+      role: "assistant",
+      content: answer
+    });
+
+
+    /* ---------- 表示 ---------- */
 
     await fadeOutText();
 
     showText(answer);
+
 
   } catch (error) {
 
@@ -365,6 +570,7 @@ async function askAI(text) {
     );
 
   }
+
 
   busy = false;
 
@@ -379,7 +585,7 @@ async function askAI(text) {
 
 input.addEventListener(
   "keydown",
-  async (e) => {
+  async e => {
 
     if (e.key !== "Enter") {
       return;
@@ -395,6 +601,24 @@ input.addEventListener(
     }
 
     input.value = "";
+
+
+    /*
+     * 終了ワードなら
+     * AIへの通常質問にはしない
+     */
+
+    if (isEndCommand(text)) {
+
+      await finishDay();
+
+      return;
+    }
+
+
+    /*
+     * 通常会話
+     */
 
     await askAI(text);
 
