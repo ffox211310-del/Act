@@ -68,6 +68,19 @@ const reloadButton =
   document.getElementById("reloadButton");
 
 /* ========================================
+   設定パネル
+======================================== */
+
+bot.addEventListener(
+  "click",
+  () => {
+
+    settingsPanel.classList.toggle("open");
+
+  }
+);
+
+/* ========================================
    初回案内
 ======================================== */
 
