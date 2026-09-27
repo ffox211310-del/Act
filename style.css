@@ -605,41 +605,19 @@ body {
 ======================================== */
 
 .settings-panel {
-  position: fixed;
-
-  top: calc(50% + 110px);
+  top: 50%; /* 50% + 110px から変更 */
   left: 50%;
-
-  width: min(360px, calc(100% - 40px));
-
-  padding: 26px;
-
-  transform:
-    translate(-50%, -50%)
-    scale(0.96);
-
-  border: 1px solid rgba(79, 209, 196, 0.22);
-  border-radius: 24px;
-
-  background:
-    rgba(9, 27, 26, 0.96);
-
-  backdrop-filter: blur(18px);
-
-  box-shadow:
-    0 30px 80px rgba(0, 0, 0, 0.45),
-    0 0 40px rgba(79, 209, 196, 0.08);
-
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-
-  transition:
-    opacity 0.25s ease,
-    transform 0.25s ease,
-    visibility 0.25s ease;
-
-  z-index: 900;
+  width: min(380px, calc(100vw - 32px));
+  max-height: min(82vh, 720px);
+  overflow-y: auto;
+}
+.settings-close {
+  position: absolute;
+  top: 12px; right: 12px;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  color: rgba(232,245,243,0.7);
 }
 
 .settings-panel.open {
