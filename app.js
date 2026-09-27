@@ -144,6 +144,74 @@ reloadButton.addEventListener(
 
   }
 );
+
+// 新DOM
+const deviceLangInfo = document.getElementById("deviceLangInfo");
+const voiceSelect = document.getElementById("voiceSelect");
+const voiceCurrent = document.getElementById("voiceCurrent");
+const voiceTestButton = document.getElementById("voiceTestButton");
+
+function refreshDeviceInfo() {
+  const primary = navigator.language;
+  const all = (navigator.languages || [primary]).join(", ");
+  const count = voice? voice.getVoices().length : 0;
+  deviceLangInfo.innerHTML = `端末言語: <b>${primary}</b><br>対応言語: ${all}<br>利用可能な声: ${count}件`;
+}
+
+function populateVoices() {
+  const voices = voice.getVoices();
+  if (!voices.length) {
+    voiceSelect.innerHTML = '<option>読み込み中...</option>';
+    return;
+  }
+  const sorted = [...voices].sort((a,b) => {
+    if(a.lang.startsWith("ja") &&!b.lang.startsWith("ja")) return -1;
+    if(!a.lang.startsWith("ja") && b.lang.startsWith("ja")) return 1;
+    return a.lang.localeCompare(b.lang);
+  });
+  voiceSelect.innerHTML = "";
+  sorted.forEach(v => {
+    const opt = document.createElement("option");
+    opt.value = v.voiceURI;
+    opt.textContent = `${v.name} (${v.lang})${v.default? " ★" : ""}`;
+    opt.dataset.lang = v.lang;
+    voiceSelect.appendChild(opt);
+  });
+  const savedURI = localStorage.getItem("personal_ai_voice_uri");
+  if(savedURI) voiceSelect.value = savedURI;
+  else {
+    const ja = sorted.find(v => v.lang.startsWith("ja"));
+    if(ja) voiceSelect.value = ja.voiceURI;
+  }
+  voiceCurrent.textContent = `現在: ${voiceSelect.selectedOptions[0]?.textContent}`;
+}
+
+voiceSelect.addEventListener("change", () => {
+  voice.setVoiceByURI(voiceSelect.value);
+  voiceCurrent.textContent = `現在: ${voiceSelect.selectedOptions[0]?.textContent}`;
+});
+
+voiceTestButton.addEventListener("click", async () => {
+  const lang = voiceSelect.selectedOptions[0]?.dataset?.lang || "ja-JP";
+  let txt = "こんにちは。こちらが選択中の声です。";
+  if(!lang.startsWith("ja")) txt = "Hello, this is the selected voice.";
+  await voice.speak(txt);
+});
+
+// voicesは非同期で来るので
+speechSynthesis.onvoiceschanged = () => {
+  populateVoices();
+  refreshDeviceInfo();
+};
+
+// 設定パネル開いた時にも更新
+bot.addEventListener("click", () => {
+  if(settingsPanel.classList.contains("open")) {
+    refreshDeviceInfo();
+    populateVoices();
+  }
+});
+
 /* ========================================
    初回案内
 ======================================== */
