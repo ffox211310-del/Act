@@ -81,6 +81,52 @@
   </div>
 </div>
 
+
+<!-- 設定パネル -->
+<div class="settings-panel" id="settingsPanel">
+
+  <div class="settings-title">
+    パーソナルAI設定
+  </div>
+
+  <div class="settings-label">
+    AIモデル
+  </div>
+
+  <div class="model-options">
+
+    <button class="model-option" data-model="small">
+      <strong>小</strong>
+      <span>0.5B</span>
+    </button>
+
+    <button class="model-option" data-model="medium">
+      <strong>中</strong>
+      <span>1.5B</span>
+    </button>
+
+    <button class="model-option" data-model="large">
+      <strong>大</strong>
+      <span>3B</span>
+    </button>
+
+  </div>
+
+  <div class="settings-current" id="settingsCurrent">
+    現在：中
+  </div>
+
+  <button
+    class="reload-button"
+    id="reloadButton"
+  >
+    選択を反映して再読み込み
+  </button>
+
+</div>
+
+
+  
 <div class="bubble" id="bubble"></div>
 
 <div class="composer">
