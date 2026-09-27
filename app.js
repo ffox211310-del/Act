@@ -734,11 +734,11 @@ if (document.activeElement === input) {
    回答読み上げ
 ======================================== */
 
-if (voice && answer) {
+if (voiceMode && voice && answer) {
 
   await voice.speak(answer);
 
-  if (voiceMode && !busy) {
+  if (!busy) {
     voice.start();
   }
 
