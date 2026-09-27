@@ -439,7 +439,6 @@ async function loadModel() {
     );
 
     input.disabled = false;
-    input.focus();
 
   } catch (error) {
 
